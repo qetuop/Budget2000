@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import budget2000.*?>
+
+<SplitPane dividerPositions="0.5" 
+           maxHeight="-Infinity" maxWidth="-Infinity" 
+           minHeight="-Infinity" minWidth="-Infinity" 
+           prefHeight="400.0" prefWidth="600.0" 
+           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="budget2000.InstitutionViewController">
+    <items>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+            <children>
+                <VBox prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <children>
+                        <TableView fx:id="institutionTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="InstitutionNameCol" prefWidth="295.0" text="Institution" />
+                            </columns>
+                        </TableView>
+                        <FlowPane alignment="CENTER" prefHeight="52.0" prefWidth="296.0">
+                            <children>
+                                <Button mnemonicParsing="false" onAction="#addInstitution" text="Add Institution" />
+                            </children>
+                        </FlowPane>
+                    </children>
+                </VBox>
+            </children>
+        </AnchorPane>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+            <children>
+                <TableView fx:id="institutionAccountTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columns>
+                        <TableColumn fx:id="AccountCol" prefWidth="295.0" text="Account" />
+                    </columns>
+                </TableView>
+            </children>
+        </AnchorPane>
+    </items>
+</SplitPane>
