@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 public class MainAppViewController implements Initializable {
     //@FXML Node usersTab;
     //@FXML private UserViewController usersTabController;
+    private MainApp mainApp;
     
     @FXML
     private Label label;
@@ -34,5 +35,9 @@ public class MainAppViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
     }    
+    
+    void setMainApp(MainApp mainApp) {
+        this.mainApp = mainApp;
+    }
     
 }

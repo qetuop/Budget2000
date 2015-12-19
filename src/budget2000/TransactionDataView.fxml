@@ -9,25 +9,25 @@
 <?import javafx.scene.text.*?>
 <?import budget2000.*?>
 
-<SplitPane dividerPositions="0.5" 
-           maxHeight="-Infinity" maxWidth="-Infinity" 
-           minHeight="-Infinity" minWidth="-Infinity" 
-           prefHeight="400.0" prefWidth="600.0" 
-           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="budget2000.TransactionViewController">
+<SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" 
+           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="budget2000.TransactionViewController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <children>
                 <VBox prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
-                        <TableView fx:id="transactionTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="transactionTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onContextMenuRequested="#contextMenuRequested" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="TransactionDescriptionCol" prefWidth="295.0" text="Transaction" />
+                                <TableColumn fx:id="TransactionDateCol" prefWidth="75.0" text="Date" />
+                                <TableColumn fx:id="TransactionDescriptionCol" prefWidth="295.0" text="Name" />
+                                <TableColumn fx:id="TransactionAmountCol" prefWidth="295.0" text="Amount" />
                             </columns>
                         </TableView>
                         <FlowPane alignment="CENTER" prefHeight="52.0" prefWidth="296.0">
                             <children>
                                 <Button mnemonicParsing="false" onAction="#addTransaction" text="Add Transaction" />
+                                <Button mnemonicParsing="false" onAction="#editTransaction" text="Edit Transaction" />
+                                <Button mnemonicParsing="false" onAction="#importTransaction" text="Import Transaction" />
                             </children>
                         </FlowPane>
                     </children>
@@ -36,10 +36,7 @@
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <children>
-                <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
-                           prefHeight="398.0" prefWidth="296.0" 
-                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" 
-                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                <TableView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
                         <TableColumn prefWidth="295.0" text="Details" />
                     </columns>

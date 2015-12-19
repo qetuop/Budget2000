@@ -73,6 +73,9 @@ public class Importer {
                 
                 //Transaction transaction = new Transaction(localDate, line[2], bigDecimal);
                 Transaction transaction = new Transaction();
+                transaction.setDate(date.getTime());
+                transaction.setDescription(line[2]);
+                transaction.setAmount(bigDecimal.doubleValue());
                 
                 transactionList.add(transaction);
                 System.out.println(transaction + "\n");

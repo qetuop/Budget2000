@@ -17,6 +17,8 @@ import javafx.stage.Stage;
  * @author brian
  */
 public class MainApp extends Application {
+    Stage mPrimaryStage;
+    MainAppViewController mvc;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -31,11 +33,12 @@ public class MainApp extends Application {
         // enable all children to get this class (and thus the userData)
         MainAppViewController mvc = loader.getController();
         //mvc.setBudgetData(budgetData);
-        //mvc.setMainApp(this);
+        mvc.setMainApp(this);
 
         scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Budget 2000");
+        mPrimaryStage = primaryStage;
         primaryStage.show();
     }
 

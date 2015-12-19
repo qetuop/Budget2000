@@ -12,8 +12,10 @@ import java.io.ObjectOutput;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,14 +36,26 @@ public class Transaction implements Externalizable {
     private final StringProperty description;
     private final IntegerProperty accountId;
     private final LongProperty date;
+    private final DoubleProperty amount;
 
     public Transaction() {
         this.id = new SimpleIntegerProperty(this, "id", 0);
         this.description = new SimpleStringProperty(this, "description", "");
         this.accountId = new SimpleIntegerProperty(this, "accountId", 0);
         this.date = new SimpleLongProperty(this, "date", 0);
+        this.amount = new SimpleDoubleProperty(this, "amount", 0);
     }
 
+    public Transaction(Integer id, Long date, String description, Integer accountId, Double amount) {
+        this();
+
+        this.setId(id);
+        this.setDescription(description);
+        this.setAccountId(accountId);
+        this.setDate(date);
+        this.setAmount(amount);
+    }
+    
     public Transaction(Integer id, Long date, String description, Integer accountId) {
         this();
 
@@ -106,6 +120,20 @@ public class Transaction implements Externalizable {
     public LongProperty getDateProperty() {
         return date;
     }
+
+    public final Double getAmount() {
+        return amount.get();
+    }
+    
+    public final void setAmount(Double value) {
+        amount.set(value);
+    }
+    
+    public DoubleProperty getAmmountProperty() {
+        return amount;
+    }
+    
+    
 
     @Override
     public String toString() {
