@@ -45,7 +45,7 @@ import javafx.stage.Stage;
  */
 public class TransactionViewController implements Initializable {
 
-    //private BudgetData budgetData;
+    private BudgetData budgetData;
     private TransactionDbAdapter mTransactionDbAdapter;
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
 
@@ -77,7 +77,7 @@ public class TransactionViewController implements Initializable {
 
         transactionTableView.setItems(transactionList);
 
-        init();
+        //init();
 
 //        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
 //
@@ -285,10 +285,10 @@ public class TransactionViewController implements Initializable {
 
     } // addTransaction
 
-//    void setBudgetData(BudgetData budgetData) {
-//        this.budgetData = budgetData;
-//        init();
-//    }
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
 //    private void setTable() {
 //        Account account = budgetData.getSelectedAccount();
 //

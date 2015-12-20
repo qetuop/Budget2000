@@ -5,16 +5,19 @@
  */
 package budget2000;
 
+import java.beans.PropertyChangeEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -27,10 +30,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class InstitutionViewController implements Initializable {
 
-    //private BudgetData budgetData; // will be set from main controller
-    private InstitutionDbAdapter mInstitutionDbAdapter;
-    private  ObservableList<Institution> institutionList = FXCollections.observableArrayList();
+    private static Logger logger = Logger.getGlobal();
 
+    private BudgetData budgetData; // will be set from main controller
+    private InstitutionDbAdapter mInstitutionDbAdapter;
+    private ObservableList<Institution> institutionList = FXCollections.observableArrayList();
+
+    @FXML
+    Node institutionsTab;
 
     // left side table/col
     @FXML
@@ -53,14 +60,16 @@ public class InstitutionViewController implements Initializable {
         InstitutionNameCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));// must be ?similar? to POJO field
 
         AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
-        
+
         mInstitutionDbAdapter = new InstitutionDbAdapter();
         mInstitutionDbAdapter.createConnection();
         mInstitutionDbAdapter.createDatabase();
-        
+
         institutionTableView.setItems(institutionList);
-        
-        init();
+
+       
+
+        //init();
     }
 
     private void init() {
@@ -68,17 +77,18 @@ public class InstitutionViewController implements Initializable {
 
         // set the table up with initial data
         //setTable();
-
         // handle USER selection (from other tab) - set the institution list to this user's list
-        //budgetData.addUserPropertyChangeListener( evt -> { setTable(); } );
+        budgetData.addUserPropertyChangeListener(evt -> {
+            userSelected(evt);
+        });
 
         // handle INSTITUTION table selection events
         institutionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (institutionTableView.getSelectionModel().getSelectedItem() != null) {
-                
-                Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();                   
+
+                Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();
                 //budgetData.setSelectedInstitution(selectedInstitution);
- 
+
                 // link institution view - Right hand side table - future growth
                 //institutionAccountTableView.setItems(selectedInstitution.getAccountList());
             }
@@ -110,31 +120,28 @@ public class InstitutionViewController implements Initializable {
         result.ifPresent(institutionName -> {
             Institution institution = new Institution();
             institution.setInstitutionName(institutionName);
-            
+
             int instutitionId = mInstitutionDbAdapter.createInstitution(institution);
             institution.setId(instutitionId);
             institutionList.add(institution); // need to add to DB? or have list rebuild from DB?
-            
-            
-            
-            
+
             //institutionData.add(institution);
             //budgetData.getSelectedUser().addInstitution(institution);
-            
             institutionTableView.getSelectionModel().select(institution);
             Context.getInstance().setInstitutionId(instutitionId);
-            
+
         });
 
     } // addInstitution
 
-//    void setBudgetData(BudgetData budgetData) {
-//        this.budgetData = budgetData;
-//        init();
-//    }
-    
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
+
 //    private void setTable() {
-//        User user = budgetData.getSelectedUser();
+//        Integer userId = budgetData.getSelectedUser();
+//        User user = new User();
 //        
 //        if (user != null) {
 //            ObservableList<Institution> institutionList = user.getInstitutionList();
@@ -144,5 +151,18 @@ public class InstitutionViewController implements Initializable {
 //            //institutionAccountTableView.setItems(userData.getSelectedUser().getInstitutionData().getAccountData().getAccountList());
 //        }
 //    }
+    private void userSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer) evt.getNewValue();
+
+         logger.info("i = " + i);
+
+        if (i == 0) {
+            ;
+        } else {
+            ;//tabPane.getSelectionModel().select(0);
+            institutionsTab.setDisable(true);
+            
+        }
+    }
 
 } // InstitutionViewController

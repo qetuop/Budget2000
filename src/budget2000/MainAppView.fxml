@@ -34,7 +34,8 @@
         </MenuBar>
 <!--        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
             <children>-->
-                <TabPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="403.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
+                         prefHeight="403.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                     <tabs>
                         <Tab id="Users" fx:id="UsersTab" text="Users">
                             <content>

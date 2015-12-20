@@ -27,7 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class AccountViewController implements Initializable {
 
-    //private BudgetData budgetData;
+    private BudgetData budgetData;
     private AccountDbAdapter mAccountDbAdapter;
     private ObservableList<Account> accountList = FXCollections.observableArrayList();
 
@@ -58,7 +58,7 @@ public class AccountViewController implements Initializable {
 
         accountTableView.setItems(accountList);
 
-        init();
+        //init();
 
     }
 
@@ -126,10 +126,10 @@ public class AccountViewController implements Initializable {
 
     } // addAccount
 
-//    void setBudgetData(BudgetData budgetData) {
-//        this.budgetData = budgetData;
-//        init();
-//    }
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
 
 //    private void setTable() {
 //        Institution institution = budgetData.getSelectedInstitution();

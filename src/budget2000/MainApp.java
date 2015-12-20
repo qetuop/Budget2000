@@ -17,6 +17,7 @@ import javafx.stage.Stage;
  * @author brian
  */
 public class MainApp extends Application {
+    private BudgetData budgetData = new BudgetData();
     Stage mPrimaryStage;
     MainAppViewController mvc;
 
@@ -32,7 +33,7 @@ public class MainApp extends Application {
 
         // enable all children to get this class (and thus the userData)
         MainAppViewController mvc = loader.getController();
-        //mvc.setBudgetData(budgetData);
+        mvc.setBudgetData(budgetData);
         mvc.setMainApp(this);
 
         scene = new Scene(root);

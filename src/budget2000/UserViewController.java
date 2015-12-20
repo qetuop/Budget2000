@@ -33,7 +33,7 @@ import javafx.util.Pair;
  */
 public class UserViewController implements Initializable {
 
-//    private BudgetData budgetData; // will be set from main controller
+    private BudgetData budgetData; // will be set from main controller
     private UserDbAdapter mUserDbAdapter;
     private ObservableList<User> userList = FXCollections.observableArrayList();
 
@@ -64,17 +64,16 @@ public class UserViewController implements Initializable {
 
         userTableView.setItems(userList);
        
-        init();
+        //init();
 
     }
 
     protected void init() {
         System.out.println("UVC::init()");
+        
+        // handle USER selection -not needed
+        //budgetData.addUserPropertyChangeListener( evt -> { userSelected(evt); } );
 
-//        UserDbAdapter mUserDbAdapter = new UserDbAdapter();
-//        mUserDbAdapter.createConnection();
-//        
-//        userTableView.setItems(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
         // handle USER table selection events
         userTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (userTableView.getSelectionModel().getSelectedItem() != null) {
@@ -149,28 +148,20 @@ public class UserViewController implements Initializable {
         // Add user to data store and set it as table selection
         result.ifPresent(firstLastName -> {
             User newUser = new User(firstLastName.getKey(), firstLastName.getValue());
-//            budgetData.addUser(newUser);
 
             int userId = mUserDbAdapter.createUser(newUser);
             newUser.setId(userId);
             userList.add(newUser); // need to add to DB? or have list rebuild from DB?
-            
-            
 
             userTableView.getSelectionModel().select(newUser);
-            Context.getInstance().setUserId(userId);
+            //Context.getInstance().setUserId(userId);
+            budgetData.setSelectedUser(userId);
         });
     }
 
-//    void setBudgetData(BudgetData budgetData) {
-//        this.budgetData = budgetData;
-//        init();
-//    }
-//    private void debugUser(User selectedUser) {
-//        InstitutionData institutionData = selectedUser.getInstitutionData();
-//        if (institutionData != null) {
-//            ObservableList<Institution> institutionList = institutionData.getInstitutionList();
-//            System.out.println("UVC::debugUser, inst list = " + institutionList.size());
-//        }
-//    }
-}
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
+    
+} // UserViewController
