@@ -8,6 +8,7 @@ package budget2000;
 import java.beans.PropertyChangeEvent;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +21,8 @@ import javafx.scene.control.TabPane;
  * @author brian
  */
 public class MainAppViewController implements Initializable {
+    private static final Logger logger = Logger.getGlobal();
+    
     //@FXML Node usersTab;
     //@FXML private UserViewController usersTabController;
     private MainApp mainApp;
@@ -58,7 +61,10 @@ public class MainAppViewController implements Initializable {
         System.out.println("MAVC::init()");
         
         // handle USER selection
-        //budgetData.addUserPropertyChangeListener( evt -> { userSelected(evt); } );
+        budgetData.addUserPropertyChangeListener( evt -> { userSelected(evt); } );
+        budgetData.addInstitutionPropertyChangeListener(evt -> { institutionSelected(evt); } );
+        budgetData.addAccountPropertyChangeListener(evt -> { accountSelected(evt); } );
+        budgetData.addTransactionPropertyChangeListener(evt -> { transactionSelected(evt); } );
     }
     
     void setMainApp(MainApp mainApp) {
@@ -76,19 +82,45 @@ public class MainAppViewController implements Initializable {
         init();
     }
 
-    private void userSelected(PropertyChangeEvent evt) {
+    private void userSelected(PropertyChangeEvent evt) {        
+        Integer i = (Integer)evt.getNewValue();    
+        // TODO: how to gray out tab
         
-        Integer i = (Integer)evt.getNewValue();
-        
-        System.out.println("MainAppViewController::userSelected: " + i);
-        
-        if ( i == 0 ){
-            ;
+        if ( i == 0 ) {
+            institutionsTab.setDisable(true);;
         }
         else {
-            ;//tabPane.getSelectionModel().select(0);
             institutionsTab.setDisable(true);
         }
+    }
+
+    private void institutionSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer)evt.getNewValue();    
+        // TODO: how to gray out tab
+        
+        if ( i == 0 ) {
+            accountsTab.setDisable(true);;
+        }
+        else {
+            accountsTab.setDisable(false);
+        }
+    }
+
+    private void accountSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer)evt.getNewValue();    
+        // TODO: how to gray out tab
+        
+        if ( i == 0 ) {
+            transactionsTab.setDisable(true);;
+        }
+        else {
+            transactionsTab.setDisable(false);
+        }
+    }
+    
+    private void transactionSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer)evt.getNewValue();    
+        // TODO: how to gray out tab              
     }
     
 }

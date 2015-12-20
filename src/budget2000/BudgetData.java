@@ -71,8 +71,10 @@ public class BudgetData {
         PropertyChangeEvent evt = new PropertyChangeEvent(this, USER_SELECTION, old, mSelectedUser);
         
         // un set next lower class
-        //setSelectedInstitution(new Institution());
-        System.out.println("BD::setSelectedUser:"+i);
+        if ( i == 0 )
+            setSelectedInstitution(0);
+
+        // TODO: should this happen before the above
         pcsUser.firePropertyChange(evt);
     }
 
@@ -83,7 +85,8 @@ public class BudgetData {
         PropertyChangeEvent evt = new PropertyChangeEvent(this, INSTITUTION_SELECTION, old, mSelectedInstitution);
         
         // un set next lower class
-        //setSelectedAccount(new Account());
+        if ( i == 0 )
+            setSelectedAccount(0);
         
         pcsInstitution.firePropertyChange(evt);
     }
@@ -94,8 +97,9 @@ public class BudgetData {
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, ACCOUNT_SELECTION, old, mSelectedAccount);
         
-        // un set next lower class
-        //setSelectedTransaction(new Transaction());
+        // un set next lower class - should the data class do this or a controller class? MAVC?
+        if ( i == 0 )
+            setSelectedTransaction(0);
         
         pcsAccount.firePropertyChange(evt);
     }

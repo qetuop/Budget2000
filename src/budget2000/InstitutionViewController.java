@@ -35,10 +35,7 @@ public class InstitutionViewController implements Initializable {
     private BudgetData budgetData; // will be set from main controller
     private InstitutionDbAdapter mInstitutionDbAdapter;
     private ObservableList<Institution> institutionList = FXCollections.observableArrayList();
-
-    @FXML
-    Node institutionsTab;
-
+    
     // left side table/col
     @FXML
     private TableView<Institution> institutionTableView;
@@ -78,9 +75,7 @@ public class InstitutionViewController implements Initializable {
         // set the table up with initial data
         //setTable();
         // handle USER selection (from other tab) - set the institution list to this user's list
-        budgetData.addUserPropertyChangeListener(evt -> {
-            userSelected(evt);
-        });
+        budgetData.addUserPropertyChangeListener(evt -> { userSelected(evt); });
 
         // handle INSTITUTION table selection events
         institutionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -160,7 +155,7 @@ public class InstitutionViewController implements Initializable {
             ;
         } else {
             ;//tabPane.getSelectionModel().select(0);
-            institutionsTab.setDisable(true);
+            //institutionsTab.setDisable(true);
             
         }
     }

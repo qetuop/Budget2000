@@ -24,7 +24,6 @@
                                 <TableColumn fx:id="FirstNameCol" text="First Name" />
                                 <TableColumn fx:id="LastNameCol" prefWidth="75.0" text="Last Name" />
                             </columns>
-
                         </TableView>
                         <FlowPane alignment="CENTER" columnHalignment="CENTER" VBox.vgrow="NEVER">
                             <children>

@@ -23,7 +23,8 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        hardcodedSetup();
+       
+        //hardcodedSetup();
 
         Parent root;
         Scene scene;
@@ -63,7 +64,7 @@ public class MainApp extends Application {
         user.setId(userId);
         System.out.println("userId = " + userId);
 
-        user.setFirstName("Sarah");
+        user.setFirstName("Sarah2");
         mUserDbAdapter.update(user);
 
         User user2 = new User("Joe", "Mama");

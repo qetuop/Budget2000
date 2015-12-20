@@ -8,6 +8,7 @@ package budget2000;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,6 +33,7 @@ import javafx.util.Pair;
  * @author Brian
  */
 public class UserViewController implements Initializable {
+    private static final Logger logger = Logger.getGlobal();
 
     private BudgetData budgetData; // will be set from main controller
     private UserDbAdapter mUserDbAdapter;
@@ -70,16 +72,13 @@ public class UserViewController implements Initializable {
 
     protected void init() {
         System.out.println("UVC::init()");
-        
-        // handle USER selection -not needed
-        //budgetData.addUserPropertyChangeListener( evt -> { userSelected(evt); } );
 
         // handle USER table selection events
         userTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (userTableView.getSelectionModel().getSelectedItem() != null) {
 
                 User selectedUser = userTableView.getSelectionModel().getSelectedItem();
-//                budgetData.setSelectedUser(selectedUser);
+                budgetData.setSelectedUser(selectedUser.getId());
 
                 System.out.println("UVC::selected user now = " + selectedUser.getFirstName());
 
