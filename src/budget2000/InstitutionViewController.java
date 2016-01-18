@@ -119,7 +119,7 @@ public class InstitutionViewController implements Initializable {
             //institutionData.add(institution);
             //budgetData.getSelectedUser().addInstitution(institution);
             institutionTableView.getSelectionModel().select(institution);
-            Context.getInstance().setInstitutionId(instutitionId);
+            //Context.getInstance().setInstitutionId(instutitionId);
 
         });
 

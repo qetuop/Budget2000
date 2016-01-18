@@ -78,7 +78,7 @@ public class AccountViewController implements Initializable {
             if (accountTableView.getSelectionModel().getSelectedItem() != null) {
 
                 Account selectedAccount = accountTableView.getSelectionModel().getSelectedItem();
-                //budgetData.setSelectedAccount(selectedAccount);
+                budgetData.setSelectedAccount(selectedAccount.getId());
 
                 // link institution view - Right hand side table
                 //accountTransactionTableView.setItems(selectedAccount.getTransactionList());
@@ -119,7 +119,7 @@ public class AccountViewController implements Initializable {
             accountList.add(account); // need to add to DB? or have list rebuild from DB?
             
             accountTableView.getSelectionModel().select(account);
-            Context.getInstance().setAccountId(accountId);
+            //Context.getInstance().setAccountId(accountId);
             
             //budgetData.getSelectedInstitution().addAccount(account);
         });

@@ -162,7 +162,7 @@ public class TransactionViewController implements Initializable {
                     transactionList.add(t); // need to add to DB? or have list rebuild from DB?
 
                     transactionTableView.getSelectionModel().select(t);
-                    Context.getInstance().setTransactionId(transactionId);
+                    //Context.getInstance().setTransactionId(transactionId);
                 });
             }
         }
@@ -280,7 +280,7 @@ public class TransactionViewController implements Initializable {
             transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
 
             transactionTableView.getSelectionModel().select(newTransaction);
-            Context.getInstance().setTransactionId(transactionId);
+            //Context.getInstance().setTransactionId(transactionId);
         });
 
     } // addTransaction
