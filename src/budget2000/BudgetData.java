@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -21,6 +22,7 @@ import javafx.collections.ObservableList;
  * @author Brian
  */
 public class BudgetData {
+    private static final Logger logger = Logger.getGlobal();
 
 //    private ObservableList<User> userList = FXCollections.observableArrayList();
 //
@@ -65,12 +67,14 @@ public class BudgetData {
     }
 
     public void setSelectedUser(Integer i) {
+        logger.info(i.toString());
+        
         Integer old = mSelectedUser;
         mSelectedUser = i;
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, USER_SELECTION, old, mSelectedUser);
         
-        // un set next lower class
+        // un set next lower class - should the data class do this or a controller class? MAVC?
         if ( i == 0 )
             setSelectedInstitution(0);
 
@@ -79,12 +83,14 @@ public class BudgetData {
     }
 
     public void setSelectedInstitution(Integer i) {
+        logger.info(i.toString());
+        
         Integer old = mSelectedInstitution;
         mSelectedInstitution = i;
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, INSTITUTION_SELECTION, old, mSelectedInstitution);
         
-        // un set next lower class
+        // un set next lower class - should the data class do this or a controller class? MAVC?
         if ( i == 0 )
             setSelectedAccount(0);
         
@@ -92,6 +98,8 @@ public class BudgetData {
     }
 
     public void setSelectedAccount(Integer i) {
+        logger.info(i.toString());
+        
         Integer old = mSelectedAccount;
         mSelectedAccount = i;
 
@@ -105,6 +113,8 @@ public class BudgetData {
     }
 
     void setSelectedTransaction(Integer i) {
+        logger.info(i.toString());
+        
         Integer old = mSelectedTransaction;
         mSelectedTransaction = i;
 
@@ -143,78 +153,4 @@ public class BudgetData {
     public void removeTransactionPropertyChangeListener(PropertyChangeListener listener) {
         pcsTransaction.removePropertyChangeListener(listener);
     }
-
-//    public void setUserList(ObservableList<User> userList) {
-//        this.userList = userList;
-//    }
-//
-//    public ObservableList<User> getUserList() {
-//        return userList;
-//    }
-
-//    public void setInsitutionList(ObservableList<Institution> institutionList) {
-//        getSelectedUser().setInstitutionList( institutionList);
-//    }
-//    public ObservableList<Institution> getInstitutionList() {
-//        return getSelectedUser().getInstitutionList();
-//    }
-//    void addUser(User user) {
-//        userList.add(user);
-//    }
-//    
-//    public void update() {
-//        this.debugAllUserData();
-//        //this.setSelectedUser(this.userList.get(0));
-//    }
-//
-//    @Override
-//    public void writeExternal(ObjectOutput out) throws IOException {
-//        ArrayList<User> tmp = new ArrayList<>(userList);
-//        out.writeObject(tmp);
-//    }
-//
-//    @Override
-//    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//        ArrayList<User> tmp = (ArrayList<User>) in.readObject();
-//        userList = FXCollections.observableArrayList(tmp);
-//    }
-//
-//    void debugSelectedUserData() {
-//        System.out.println("** SelectedData **");
-//
-//        User u = this.getSelectedUser();
-//        Institution i = this.getSelectedInstitution();
-//        Account a = this.getSelectedAccount();
-//        Transaction t = this.getSelectedTransaction();
-//
-//        System.out.println("  USER: " + u + ", institution size: " + u.getInstitutionList().size());
-//        System.out.println("  INST: " + i + ", account size: " + i.getAccountList().size());
-//        System.out.println("  ACNT: " + a);
-//        System.out.println("  TRAS: " + t);
-//        
-//        System.out.println("****************");
-//    }
-//
-//    void debugAllUserData() {
-//        System.out.println("** All Data **");
-//        
-//        for (User u : getUserList()) {
-//            System.out.println(u);
-//            
-//            for (Institution i : u.getInstitutionList()) {
-//                System.out.println("  " + i);
-//                
-//                for (Account a : i.getAccountList()) {
-//                    System.out.println("    " + a);
-//                    
-//                    for (Transaction t : a.getTransactionList()) {
-//                        System.out.println("     " + t);
-//                    } // transaction
-//                } // account
-//            } // institution            
-//        } // user
-//
-//        System.out.println("****************");
-//    }
-
 } // BudgetData

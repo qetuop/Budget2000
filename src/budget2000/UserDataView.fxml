@@ -9,11 +9,7 @@
 <?import javafx.scene.text.*?>
 <?import budget2000.*?>
 
-<SplitPane dividerPositions="0.5" maxHeight="-Infinity" 
-           maxWidth="-Infinity" minHeight="-Infinity" 
-           minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" 
-           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="budget2000.UserViewController">
+<SplitPane dividerPositions="0.5" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="budget2000.UserViewController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <children>
@@ -28,6 +24,8 @@
                         <FlowPane alignment="CENTER" columnHalignment="CENTER" VBox.vgrow="NEVER">
                             <children>
                                 <Button mnemonicParsing="false" onAction="#addUser" text="Add User" />
+                                <Button fx:id="editUserBtn" mnemonicParsing="false" onAction="#editUser" text="Edit User" />
+                                <Button fx:id="deleteUserBtn" mnemonicParsing="false" onAction="#deleteUser" text="Delete User" />
                             </children>
                         </FlowPane>
                     </children>

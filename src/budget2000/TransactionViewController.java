@@ -148,7 +148,7 @@ public class TransactionViewController implements Initializable {
         fileChooser.setInitialDirectory(new File("."));
 
         fileChooser.getExtensionFilters().addAll(
-                new ExtensionFilter("Text CSV", "*.csv"),
+                new ExtensionFilter("Text CSV", "*.csv", "*.CSV"),
                 new ExtensionFilter("All Files", "*.*"));
 
         List<File> list = fileChooser.showOpenMultipleDialog(stage);

@@ -54,8 +54,8 @@ public class InstitutionViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         System.out.println("IVC::initialize()");
+        
         InstitutionNameCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));// must be ?similar? to POJO field
-
         AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
 
         mInstitutionDbAdapter = new InstitutionDbAdapter();
@@ -63,10 +63,6 @@ public class InstitutionViewController implements Initializable {
         mInstitutionDbAdapter.createDatabase();
 
         institutionTableView.setItems(institutionList);
-
-       
-
-        //init();
     }
 
     private void init() {
@@ -82,7 +78,7 @@ public class InstitutionViewController implements Initializable {
             if (institutionTableView.getSelectionModel().getSelectedItem() != null) {
 
                 Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();
-                //budgetData.setSelectedInstitution(selectedInstitution);
+                budgetData.setSelectedInstitution(selectedInstitution.getId());
 
                 // link institution view - Right hand side table - future growth
                 //institutionAccountTableView.setItems(selectedInstitution.getAccountList());
@@ -149,15 +145,7 @@ public class InstitutionViewController implements Initializable {
     private void userSelected(PropertyChangeEvent evt) {
         Integer i = (Integer) evt.getNewValue();
 
-         logger.info("i = " + i);
-
-        if (i == 0) {
-            ;
-        } else {
-            ;//tabPane.getSelectionModel().select(0);
-            //institutionsTab.setDisable(true);
-            
-        }
+         //logger.info("i = " + i);     
     }
 
 } // InstitutionViewController

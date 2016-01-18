@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -61,10 +62,27 @@ public class MainAppViewController implements Initializable {
         System.out.println("MAVC::init()");
         
         // handle USER selection
-        budgetData.addUserPropertyChangeListener( evt -> { userSelected(evt); } );
-        budgetData.addInstitutionPropertyChangeListener(evt -> { institutionSelected(evt); } );
-        budgetData.addAccountPropertyChangeListener(evt -> { accountSelected(evt); } );
-        budgetData.addTransactionPropertyChangeListener(evt -> { transactionSelected(evt); } );
+        budgetData.addUserPropertyChangeListener( evt -> { tableSelection(evt); } );
+        budgetData.addInstitutionPropertyChangeListener(evt -> { tableSelection(evt); } );
+        budgetData.addAccountPropertyChangeListener(evt -> { tableSelection(evt); } );
+        budgetData.addTransactionPropertyChangeListener(evt -> { tableSelection(evt); } );
+        
+        userSelected(0);
+        institutionSelected(0);
+        accountSelected(0);
+        transactionSelected(0);
+    }
+    
+    @FXML
+    protected void fileSaveSelected(Event event) {
+        System.out.println("MAVC::fileSaveSelected");        
+        mainApp.save();
+    }
+    
+    @FXML
+    protected void fileOpenSelected(Event event) {
+        System.out.println("MAVC::fileOpenSelected");        
+        mainApp.load();
     }
     
     void setMainApp(MainApp mainApp) {
@@ -81,21 +99,46 @@ public class MainAppViewController implements Initializable {
         
         init();
     }
-
-    private void userSelected(PropertyChangeEvent evt) {        
-        Integer i = (Integer)evt.getNewValue();    
-        // TODO: how to gray out tab
+    
+    private void tableSelection(PropertyChangeEvent evt) {        
+        Integer i = (Integer)evt.getNewValue(); 
+        String prop = evt.getPropertyName();
         
-        if ( i == 0 ) {
-            institutionsTab.setDisable(true);;
+        switch (prop) {
+            case BudgetData.USER_SELECTION: {
+                userSelected(i);
+                break;
+            }
+            case BudgetData.INSTITUTION_SELECTION: {
+                institutionSelected(i);
+                break;
+            }
+            case BudgetData.ACCOUNT_SELECTION: {
+                accountSelected(i);
+                break;
+            }
+            case BudgetData.TRANSACTION_SELECTION: {
+                transactionSelected(i);
+                break;                
+            }
         }
-        else {
+    } // tableSelection
+
+    private void userSelected(Integer i) {        
+       
+        if ( i == 0 ) {
             institutionsTab.setDisable(true);
         }
+        else {
+            institutionsTab.setDisable(false);
+        }
+        
+        // propagate selection
+        //institutionSelected(i);
     }
 
-    private void institutionSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer)evt.getNewValue();    
+    private void institutionSelected(Integer i) { 
+        
         // TODO: how to gray out tab
         
         if ( i == 0 ) {
@@ -104,10 +147,13 @@ public class MainAppViewController implements Initializable {
         else {
             accountsTab.setDisable(false);
         }
+        
+        // propagate selection
+        //institutionSelected(i);
     }
 
-    private void accountSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer)evt.getNewValue();    
+    private void accountSelected(Integer i) { 
+       
         // TODO: how to gray out tab
         
         if ( i == 0 ) {
@@ -116,10 +162,13 @@ public class MainAppViewController implements Initializable {
         else {
             transactionsTab.setDisable(false);
         }
+        
+        // propagate selection
+        //institutionSelected(i);
     }
     
-    private void transactionSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer)evt.getNewValue();    
+    private void transactionSelected(Integer i) { 
+        //Integer i = (Integer)evt.getNewValue();    
         // TODO: how to gray out tab              
     }
     

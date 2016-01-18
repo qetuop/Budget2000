@@ -6,6 +6,7 @@
 package budget2000;
 
 import java.sql.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -13,6 +14,8 @@ import java.sql.*;
  */
 public class AbstractDbAdapter {
 
+    private static Logger logger = Logger.getGlobal();
+    
     protected static Connection c = null;
     private static Boolean databaseCreated = false;
 
@@ -98,12 +101,15 @@ public class AbstractDbAdapter {
     } // createConnection
 
     public void createDatabase() {
+        
+        
         Statement stmt = null;
 
         if (databaseCreated == true) {
             return;
         }
-
+        logger.info("Droping tables - REMOVE ME");
+        
         dropTables();
 
         // CREATE Table
@@ -145,9 +151,11 @@ public class AbstractDbAdapter {
         try {
             stmt = c.createStatement();
             for (String s : new String[]{
-                TABLE_USER, TABLE_INSTITUTION, 
-                TABLE_ACCOUNT,TABLE_TRANSACTION}) {
-//TABLE_TRANSACTION
+                TABLE_USER, 
+                TABLE_INSTITUTION, 
+                TABLE_ACCOUNT,
+                TABLE_TRANSACTION}) {
+
                 String sql = "DROP TABLE " + s;
                 stmt.executeUpdate(sql);
                 System.out.println(s + " dropped");

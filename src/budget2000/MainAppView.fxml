@@ -10,14 +10,14 @@
 <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" 
       xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="budget2000.MainAppViewController">
-        <children>
+    <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
                         <MenuItem mnemonicParsing="false" text="Close" />
-<!--                  <MenuItem mnemonicParsing="false" onAction="#fileOpenSelected" text="Open" />
-                  <MenuItem mnemonicParsing="false" onAction="#fileSaveSelected" text="Save" />-->
+                        <MenuItem mnemonicParsing="false" onAction="#fileOpenSelected" text="Open" />
+                        <MenuItem mnemonicParsing="false" onAction="#fileSaveSelected" text="Save" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
@@ -32,34 +32,34 @@
                 </Menu>
             </menus>
         </MenuBar>
-<!--        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-            <children>-->
-                <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
+        <!--        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+        <children>-->
+        <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
                          prefHeight="403.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-                    <tabs>
-                        <Tab id="Users" fx:id="UsersTab" text="Users">
-                            <content>
-                                <fx:include fx:id="usersTab" source="UserDataView.fxml" />
-                            </content>
-                        </Tab>
-                        <Tab id="Institutions" fx:id="InstitutionsTab" text="Institutions">
-                            <content>
-                                <fx:include fx:id="institutionsTab" source="InstitutionDataView.fxml" />
-                            </content>
-                        </Tab>
-                        <Tab id="Accounts" fx:id="AccountsTab" text="Accounts">
-                            <content>
-                                <fx:include fx:id="accountsTab" source="AccountDataView.fxml" />
-                            </content>
-                        </Tab>
-                        <Tab id="Transactions" fx:id="TransactionsTab" text="Transactions">
-                            <content>
-                                <fx:include fx:id="transactionsTab" source="TransactionDataView.fxml" />
-                            </content>
-                        </Tab>
-                    </tabs>
-                </TabPane>
-<!--            </children>
+            <tabs>
+                <Tab id="Users" fx:id="UsersTab" text="Users">
+                    <content>
+                        <fx:include fx:id="usersTab" source="UserDataView.fxml" />
+                    </content>
+                </Tab>
+                <Tab id="Institutions" fx:id="InstitutionsTab" text="Institutions">
+                    <content>
+                        <fx:include fx:id="institutionsTab" source="InstitutionDataView.fxml" />
+                    </content>
+                </Tab>
+                <Tab id="Accounts" fx:id="AccountsTab" text="Accounts">
+                    <content>
+                        <fx:include fx:id="accountsTab" source="AccountDataView.fxml" />
+                    </content>
+                </Tab>
+                <Tab id="Transactions" fx:id="TransactionsTab" text="Transactions">
+                    <content>
+                        <fx:include fx:id="transactionsTab" source="TransactionDataView.fxml" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+        <!--            </children>
         </AnchorPane>-->
     </children>
 </VBox>
