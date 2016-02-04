@@ -28,6 +28,7 @@
                         <FlowPane alignment="CENTER" prefHeight="52.0" prefWidth="296.0">
                             <children>
                                 <Button mnemonicParsing="false" onAction="#addAccount" text="Add Account" />
+                                <Button mnemonicParsing="false" onAction="#deleteAccount" text="Delete Account" />
                             </children>
                         </FlowPane>
                     </children>
