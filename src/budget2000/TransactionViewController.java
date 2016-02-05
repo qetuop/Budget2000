@@ -156,7 +156,8 @@ public class TransactionViewController implements Initializable {
             for (File file : list) {
                 Importer i = new Importer();
                 ArrayList<Transaction> newTransList = i.readData(file);
-                newTransList.stream().forEach((t) -> {                   
+                newTransList.stream().forEach((t) -> {    
+                    t.setAccountId(budgetData.getSelectedAccount());
                     int transactionId = mTransactionDbAdapter.createTransaction(t);
                     t.setId(transactionId);
                     transactionList.add(t); // need to add to DB? or have list rebuild from DB?

@@ -133,6 +133,7 @@ public class AccountViewController implements Initializable {
 
             Account account = new Account();
             account.setAccountName(accountName);
+            account.setInstitutionId(budgetData.getSelectedInstitution());
 
             int accountId = mAccountDbAdapter.createAccount(account);
             account.setId(accountId);

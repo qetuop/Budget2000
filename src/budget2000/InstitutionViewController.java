@@ -111,16 +111,13 @@ public class InstitutionViewController implements Initializable {
         result.ifPresent(institutionName -> {
             Institution institution = new Institution();
             institution.setInstitutionName(institutionName);
+            institution.setUserId(budgetData.getSelectedUser());
 
             int instutitionId = mInstitutionDbAdapter.createInstitution(institution);
             institution.setId(instutitionId);
             institutionList.add(institution); // need to add to DB? or have list rebuild from DB?
 
-            //institutionData.add(institution);
-            //budgetData.getSelectedUser().addInstitution(institution);
             institutionTableView.getSelectionModel().select(institution);
-            //Context.getInstance().setInstitutionId(instutitionId);
-
         });
 
     } // addInstitution

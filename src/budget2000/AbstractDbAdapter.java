@@ -58,31 +58,31 @@ public class AbstractDbAdapter {
 
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
             + TABLE_USER + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_USER_FIRST_NAME + " text, "
             + COLUMN_USER_LAST_NAME + " text "
             + ")";  // no trailing ';'
 
     private static final String CREATE_TABLE_INSTITUTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_INSTITUTION + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_INSTITUTION_NAME + " text, "
-            + COLUMN_INSTITUTION_USER_ID + " integer references " + TABLE_USER
+            + COLUMN_INSTITUTION_USER_ID + " integer not null references " + TABLE_USER + "(" + COLUMN_ID +") ON DELETE CASCADE"
             + ")";  // no trailing ';'
-
+    
     private static final String CREATE_TABLE_ACCOUNT = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ACCOUNT + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_ACCOUNT_NAME + " text, "
-            + COLUMN_INSTITUTION_ID + " integer references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE"
+            + COLUMN_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE"
             + ")";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION + "("
-            + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_TRANSACTION_DATE + " integer not null, "
             + COLUMN_TRANSACTION_DESCRIPTION + " text, "
-            + COLUMN_TRANSACTION_ACCOUNT_ID + " integer references " + TABLE_ACCOUNT + "(" + COLUMN_ID + ") ON DELETE CASCADE" 
+            + COLUMN_TRANSACTION_ACCOUNT_ID + " integer not null references " + TABLE_ACCOUNT + "(" + COLUMN_ID + ") ON DELETE CASCADE" 
             + ")";  // no trailing ';'
 
     public void createConnection() {
@@ -128,7 +128,10 @@ public class AbstractDbAdapter {
             System.out.println("Tables created");
             
             databaseCreated = true;
-
+            
+            // necessary for stuff to work right - cascade
+            stmt.execute ("PRAGMA foreign_keys = ON;");
+            
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ":createDatabase: " + e);
         }
