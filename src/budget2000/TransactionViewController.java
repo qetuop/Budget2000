@@ -5,6 +5,7 @@
  */
 package budget2000;
 
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -45,6 +46,8 @@ import javafx.stage.Stage;
  */
 public class TransactionViewController implements Initializable {
 
+    private static final Logger logger = Logger.getGlobal();
+
     private BudgetData budgetData;
     private TransactionDbAdapter mTransactionDbAdapter;
     private ObservableList<Transaction> transactionList = FXCollections.observableArrayList();
@@ -78,7 +81,6 @@ public class TransactionViewController implements Initializable {
         transactionTableView.setItems(transactionList);
 
         //init();
-
 //        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
 //
 //            @Override
@@ -105,12 +107,11 @@ public class TransactionViewController implements Initializable {
     private void init() {
         System.out.println("TVC::init()");
 
-        // set the table up with initial data
-        //setTable();
         // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
-//        budgetData.addAccountPropertyChangeListener(evt -> {
-//            setTable();
-//        });
+        budgetData.addAccountPropertyChangeListener(evt -> {
+            update();
+        });
+
         // propagate transactions selections
         transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (transactionTableView.getSelectionModel().getSelectedItem() != null) {
@@ -156,7 +157,7 @@ public class TransactionViewController implements Initializable {
             for (File file : list) {
                 Importer i = new Importer();
                 ArrayList<Transaction> newTransList = i.readData(file);
-                newTransList.stream().forEach((t) -> {    
+                newTransList.stream().forEach((t) -> {
                     t.setAccountId(budgetData.getSelectedAccount());
                     int transactionId = mTransactionDbAdapter.createTransaction(t);
                     t.setId(transactionId);
@@ -272,16 +273,17 @@ public class TransactionViewController implements Initializable {
 
         Optional<Transaction> result = dialog.showAndWait();
 
-        // Add user to data store and set it as table selection
+        // Add to data store and set it as table selection
         result.ifPresent(newTransaction -> {
             System.out.println("newTrans " + newTransaction);
 
+            newTransaction.setAccountId(budgetData.getSelectedAccount());
+            
             int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
             newTransaction.setId(transactionId);
             transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
 
             transactionTableView.getSelectionModel().select(newTransaction);
-            //Context.getInstance().setTransactionId(transactionId);
         });
 
     } // addTransaction
@@ -290,17 +292,24 @@ public class TransactionViewController implements Initializable {
         this.budgetData = budgetData;
         init();
     }
-//    private void setTable() {
-//        Account account = budgetData.getSelectedAccount();
-//
-//        if (account != null) {
-//            ObservableList<Transaction> transactionList = account.getTransactionList();
-//            transactionTableView.setItems(transactionList);
-//
-//            // link institution view - Right hand side table
-//            //accounttransactionTableView.setItems(selectedTransaction.getTransactionList());
-//        }
-//    }
+
+    private void update() {
+        Integer accountId = budgetData.getSelectedAccount();
+
+        transactionList.setAll(FXCollections.observableArrayList(mTransactionDbAdapter.getAllForAccount(accountId)));
+        transactionTableView.setItems(transactionList);
+
+        transactionTableView.getSelectionModel().selectFirst();
+    }
+
+    private void institutionSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer) evt.getNewValue();
+
+        logger.info("i = " + i);
+
+        update();
+    }
+
     public void setFirstEntry() {
         transactionTableView.getSelectionModel().selectFirst();
     }

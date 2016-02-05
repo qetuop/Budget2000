@@ -102,4 +102,34 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
         return objects;
 
     } // getUsers
+    // SELECT ALL
+    public ArrayList<Institution> getAllForUser(Integer user_id) {
+        ArrayList<Institution> objects = new ArrayList<>();
+
+        try {
+            Statement stmt = c.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_INSTITUTION_USER_ID, user_id);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                Institution x = cursorToObject(rs);
+                if (x != null) {
+                    objects.add(x);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ":getAll: " + e);
+        }
+
+        return objects;
+
+    } // getUsers
+    
 }

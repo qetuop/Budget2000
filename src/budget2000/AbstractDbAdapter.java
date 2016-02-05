@@ -46,7 +46,7 @@ public class AbstractDbAdapter {
 
     // Account TABLE
     public static final String COLUMN_ACCOUNT_NAME = "name";
-    public static final String COLUMN_INSTITUTION_ID = "institution_id";
+    public static final String COLUMN_ACCOUNT_INSTITUTION_ID = "institution_id";
 
     // Transaction TABLE
     public static final String COLUMN_TRANSACTION_DATE = "date";
@@ -74,7 +74,7 @@ public class AbstractDbAdapter {
             + TABLE_ACCOUNT + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_ACCOUNT_NAME + " text, "
-            + COLUMN_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE"
+            + COLUMN_ACCOUNT_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE"
             + ")";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION = "CREATE TABLE IF NOT EXISTS "

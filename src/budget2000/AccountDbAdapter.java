@@ -31,7 +31,7 @@ public class AccountDbAdapter extends AbstractDbAdapter {
             stmt = c.createStatement();
             
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s', '%s');",
-                    TABLE_ACCOUNT, COLUMN_ACCOUNT_NAME, COLUMN_INSTITUTION_ID,
+                    TABLE_ACCOUNT, COLUMN_ACCOUNT_NAME, COLUMN_ACCOUNT_INSTITUTION_ID,
                     account.getAccountName(), account.getInstitutionId() );
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -62,7 +62,7 @@ public class AccountDbAdapter extends AbstractDbAdapter {
                 
                 int id = rs.getInt(COLUMN_ID);
                 String accountName = rs.getString(COLUMN_ACCOUNT_NAME);
-                Integer instId = rs.getInt(COLUMN_INSTITUTION_ID);
+                Integer instId = rs.getInt(COLUMN_ACCOUNT_INSTITUTION_ID);
                 
                 x = new Account(id, accountName, instId);
             }
@@ -102,4 +102,35 @@ public class AccountDbAdapter extends AbstractDbAdapter {
         return objects;
 
     } // getUsers
+    
+    // SELECT ALL
+    public ArrayList<Account> getAllForInstitution(Integer _id) {
+        ArrayList<Account> objects = new ArrayList<>();
+
+        try {
+            Statement stmt = c.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_ACCOUNT_INSTITUTION_ID, _id);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                Account x = cursorToObject(rs);
+                if (x != null) {
+                    objects.add(x);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ":getAll: " + e);
+        }
+
+        return objects;
+
+    } // getUsers
+    
 }

@@ -134,6 +134,37 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
         return users;
 
     } // getUsers
+    
+     // SELECT ALL
+    public ArrayList<Transaction> getAllForAccount(Integer _id) {
+        ArrayList<Transaction> users = new ArrayList<>();
+
+        try {
+            Statement stmt = c.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_TRANSACTION_ACCOUNT_ID, _id);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                Transaction t = cursorToTransaction(rs);
+                if (t != null) {
+                    users.add(t);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return users;
+
+    } // getUsers
+    
 /*
     // UPDATE
     public void update(User user) {

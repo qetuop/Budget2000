@@ -5,6 +5,7 @@
  */
 package budget2000;
 
+import java.beans.PropertyChangeEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,12 +89,11 @@ public class AccountViewController implements Initializable {
     private void init() {
         System.out.println("AVC::init()");
 
-        // set the table up with initial data
-        //setTable();
         // handle INSTITUTION selection (from other tab) - set the institution list to this user's list
-//        budgetData.addInstitutionPropertyChangeListener(evt -> {
-//            setTable();
-//        });
+        budgetData.addInstitutionPropertyChangeListener(evt -> {
+            institutionSelected(evt);
+        });
+        
         // propagate account selections
         accountTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (accountTableView.getSelectionModel().getSelectedItem() != null) {
@@ -170,25 +170,28 @@ public class AccountViewController implements Initializable {
 
     } // addAccount
 
-    private void update() {
-        accountList.setAll(FXCollections.observableArrayList(mAccountDbAdapter.getAll()));
-        accountTableView.setItems(accountList);
-    }
-
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
         init();
     }
+    
+    private void update() {
+        Integer institutionId = budgetData.getSelectedInstitution();
 
-//    private void setTable() {
-//        Institution institution = budgetData.getSelectedInstitution();
-//
-//        if (institution != null) {
-//            ObservableList<Account> accountList = institution.getAccountList();
-//            accountTableView.setItems(accountList);
-//
-//            // link institution view - Right hand side table
-//            //accountTransactionTableView.setItems(selectedAccount.getTransactionList());
-//        }
-//    }
+        accountList.setAll(FXCollections.observableArrayList(mAccountDbAdapter.getAllForInstitution(institutionId)));
+        accountTableView.setItems(accountList);
+        
+        accountTableView.getSelectionModel().selectFirst();
+    }
+    
+    private void institutionSelected(PropertyChangeEvent evt) {
+        Integer i = (Integer) evt.getNewValue();
+
+        logger.info("i = " + i);
+
+        update();
+    }
+
+    
+
 } // AccountViewController
