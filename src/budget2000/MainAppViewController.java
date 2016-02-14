@@ -92,12 +92,12 @@ public class MainAppViewController implements Initializable {
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;    
 
+        init();
+        
         usersTabController.setBudgetData(budgetData);
         institutionsTabController.setBudgetData(budgetData);
         accountsTabController.setBudgetData(budgetData);
         transactionsTabController.setBudgetData(budgetData);
-        
-        init();
     }
     
     private void tableSelection(PropertyChangeEvent evt) {        

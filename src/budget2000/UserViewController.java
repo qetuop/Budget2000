@@ -165,9 +165,10 @@ public class UserViewController implements Initializable {
         if (userTableView.getSelectionModel().getSelectedItem() != null) {
 
             User selectedUser = userTableView.getSelectionModel().getSelectedItem();
-            budgetData.setSelectedUser(selectedUser.getId());
-
             logger.info("selected user now = " + selectedUser);
+            
+            budgetData.setSelectedUser(selectedUser.getId());
+            
             deleteUserBtn.setDisable(false);
             editUserBtn.setDisable(false);
 
