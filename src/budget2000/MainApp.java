@@ -13,6 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,20 +25,21 @@ import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+        
 /**
  *
  * @author brian
  */
 public class MainApp extends Application {
+
     private BudgetData budgetData = new BudgetData();
     Stage mPrimaryStage;
     MainAppViewController mvc;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-       
-        //hardcodedSetup();
 
+        //hardcodedSetup();
         Parent root;
         Scene scene;
         FXMLLoader loader = new FXMLLoader();
@@ -44,7 +47,7 @@ public class MainApp extends Application {
         root = loader.load();
 
         // enable all children to get this class (and thus the userData)
-        MainAppViewController mvc = loader.getController();
+        mvc = loader.getController();
         mvc.setBudgetData(budgetData);
         mvc.setMainApp(this);
 
@@ -83,7 +86,6 @@ public class MainApp extends Application {
         System.out.println("userId2 = " + userId2);
 
         //mUserDbAdapter.delete(userId2);
-
         ArrayList<User> users = mUserDbAdapter.getUsers();
         for (User u : users) {
             System.out.println("First Name: " + u.getFirstName());
@@ -92,10 +94,10 @@ public class MainApp extends Application {
 
         System.out.println("--------USER---------");
     }
-    
+
     public Boolean load() {
         Boolean rv = false;
-        
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open File");
 //        fileChooser.setInitialDirectory( new File(System.getProperty("user.home")) ); 
@@ -108,51 +110,59 @@ public class MainApp extends Application {
         File file = fileChooser.showOpenDialog(mPrimaryStage);
         if (file != null) {
             System.out.println("file " + file.getName());
-            //if ( (rv = loadFile(file)) == true )
-            //    mvc.setBudgetData(budgetData);
+            
+
+            // backup current DB
+            File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
+            if (currentDB.exists()) {
+                currentDB.renameTo(new File(AbstractDbAdapter.DATABASE_NAME + ".bak"));
+            }
+            
+            currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
+            
+            try {
+                // copy new DB to correct name
+                Files.copy(file.toPath(), currentDB.toPath(), REPLACE_EXISTING);
+            } catch (IOException ex) {
+                Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            AbstractDbAdapter dbAdapter = new AbstractDbAdapter();
+            dbAdapter.close();
+            dbAdapter.createConnection();
+
+            mvc.setBudgetData(new BudgetData());
         }
         return rv;
     }
-//
-//    private Boolean loadFile ( File file ){
-//        FileInputStream fis;
-//        
-//        try {
-//            fis = new FileInputStream(file);  
-//            ObjectInputStream in = new ObjectInputStream(fis);
-//            budgetData = (BudgetData) in.readObject();
-//            budgetData.update();
-//            in.close();
-//        } catch (IOException i) {
-//            i.printStackTrace();
-//            return false;
-//        } catch (ClassNotFoundException c) {
-//            System.out.println("User class not found");
-//            c.printStackTrace();
-//            return false;
-//        }
-//
-//        return true;
-//    }
-//    
+
     public void save() {
         System.out.println("SAVING");
-//
-//        FileChooser fileChooser = new FileChooser();
-//        fileChooser.setTitle("Save File");
-////        fileChooser.setInitialDirectory( new File(System.getProperty("user.home")) ); 
-//        fileChooser.setInitialDirectory(new File("C:\\Users\\Brian\\Documents\\NetBeansProjects\\Budget"));
-//
-//        fileChooser.getExtensionFilters().addAll(
-//                new FileChooser.ExtensionFilter("Budget Save File", "*.bud"),
-//                new FileChooser.ExtensionFilter("All Files", "*.*"));
-//
-//        File file = fileChooser.showSaveDialog(primaryStage);
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save File");
+//        fileChooser.setInitialDirectory( new File(System.getProperty("user.home")) ); 
+        fileChooser.setInitialDirectory(new File("."));
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("sqlite File", "*.db"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+
+        File file = fileChooser.showSaveDialog(mPrimaryStage);
+        
 //        if (file != null) {
-//            saveFile(file);
+//            System.out.println("w?hat do i do: " +file.getName());
+//            File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
+//            
+//            try {
+//                // copy new DB to correct name
+//                Files.copy(file.toPath(), currentDB.toPath(), REPLACE_EXISTING);
+//            } catch (IOException ex) {
+//                Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 //        }
-//
-//        //String fileName = "test.ser";
+
+        //String fileName = "test.ser";
     }
 //
 //    private void saveFile(File file) {
@@ -170,6 +180,5 @@ public class MainApp extends Application {
 //            Logger.getLogger(MainAppViewController.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //    }
-
 
 } // MainApp

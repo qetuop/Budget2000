@@ -68,17 +68,11 @@ public class TransactionViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("TVC::initialize()");
+        logger.info("");
 
         TransactionDateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
         TransactionDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("Description"));
         TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
-
-        mTransactionDbAdapter = new TransactionDbAdapter();
-        mTransactionDbAdapter.createConnection();
-        mTransactionDbAdapter.createDatabase();
-
-        transactionTableView.setItems(transactionList);
 
         //init();
 //        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
@@ -104,8 +98,19 @@ public class TransactionViewController implements Initializable {
 //        }));
     } // initialize
 
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
+
     private void init() {
-        System.out.println("TVC::init()");
+        logger.info("");
+
+        mTransactionDbAdapter = new TransactionDbAdapter();
+        mTransactionDbAdapter.createConnection();
+        mTransactionDbAdapter.createDatabase();
+
+        transactionTableView.setItems(transactionList);
 
         // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
         budgetData.addAccountPropertyChangeListener(evt -> {
@@ -124,19 +129,19 @@ public class TransactionViewController implements Initializable {
             }
         });
 
-        // done the first time through
-        transactionTableView.getSelectionModel().selectFirst();
+        // query all DB items into the list and set the Tableview to this list, select first item
+        update();
 
     } // init
 
     @FXML
     protected void contextMenuRequested() {
-        System.out.println("TVC::contextMenuRequested()");
+        logger.info("");
     }
 
     @FXML
     protected void importTransaction(ActionEvent event) {
-        System.out.println("TVC::importTransaction()");
+        logger.info("");
         ClassLoader cl = this.getClass().getClassLoader();
         this.getClass().getResource("sample.csv");
 
@@ -182,12 +187,12 @@ public class TransactionViewController implements Initializable {
 
     @FXML
     protected void editTransaction(ActionEvent event) {
-        System.out.println("TVC::editTransaction()");
+        logger.info("");
     }
 
     @FXML
     protected void addTransaction(ActionEvent event) {
-        System.out.println("TVC::addTransaction()");
+        logger.info("");
 // Create the custom dialog.
         Dialog<Transaction> dialog = new Dialog<>();
         dialog.setTitle("New Transaction");
@@ -275,10 +280,10 @@ public class TransactionViewController implements Initializable {
 
         // Add to data store and set it as table selection
         result.ifPresent(newTransaction -> {
-            System.out.println("newTrans " + newTransaction);
+            logger.info("newTrans " + newTransaction);
 
             newTransaction.setAccountId(budgetData.getSelectedAccount());
-            
+
             int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
             newTransaction.setId(transactionId);
             transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
@@ -288,17 +293,10 @@ public class TransactionViewController implements Initializable {
 
     } // addTransaction
 
-    void setBudgetData(BudgetData budgetData) {
-        this.budgetData = budgetData;
-        init();
-    }
-
     private void update() {
         Integer accountId = budgetData.getSelectedAccount();
 
         transactionList.setAll(FXCollections.observableArrayList(mTransactionDbAdapter.getAllForAccount(accountId)));
-        transactionTableView.setItems(transactionList);
-
         transactionTableView.getSelectionModel().selectFirst();
     }
 

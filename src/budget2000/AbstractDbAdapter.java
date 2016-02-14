@@ -23,7 +23,7 @@ public class AbstractDbAdapter {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "budget2000.db";
+    public static final String DATABASE_NAME = "budget2000.db";
 
     // Table Names
     public static final String TABLE_USER = "user";
@@ -94,12 +94,12 @@ public class AbstractDbAdapter {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_NAME);
-            System.out.println("Opened database successfully");
+            logger.info("Opened database successfully");
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
         }
     } // createConnection
-
+    
     public void createDatabase() {
         
         
@@ -125,7 +125,7 @@ public class AbstractDbAdapter {
             stmt.executeUpdate(sql);
             stmt.close();
 
-            System.out.println("Tables created");
+            logger.info("Tables created");
             
             databaseCreated = true;
             
@@ -141,6 +141,7 @@ public class AbstractDbAdapter {
         try {
             if (c != null) {
                 c.close();
+                c = null; // TODO: is this right?
             }
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ":close: " + e.getClass().getName() + ": " + e.getMessage());
@@ -161,7 +162,7 @@ public class AbstractDbAdapter {
 
                 String sql = "DROP TABLE " + s;
                 stmt.executeUpdate(sql);
-                System.out.println(s + " dropped");
+                logger.info(s + " dropped");
             }
 
         } catch (Exception e) {

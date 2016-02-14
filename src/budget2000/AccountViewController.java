@@ -72,28 +72,31 @@ public class AccountViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("AVC::initialize()");
+        logger.info("");
         AccountNameCol.setCellValueFactory(new PropertyValueFactory<>("AccountName"));
 
         TransactionCol.setCellValueFactory(new PropertyValueFactory<>("TransactionName"));
+    }
 
-        mAccountDbAdapter = new AccountDbAdapter();
-        mAccountDbAdapter.createConnection();
-        accountList.setAll(FXCollections.observableArrayList(mAccountDbAdapter.getAll()));
-
-        accountTableView.setItems(accountList);
-
-        //init();
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
     }
 
     private void init() {
-        System.out.println("AVC::init()");
+        logger.info("");
+
+        mAccountDbAdapter = new AccountDbAdapter();
+        mAccountDbAdapter.createConnection();
+        mAccountDbAdapter.createDatabase();
+        
+        accountTableView.setItems(accountList);
 
         // handle INSTITUTION selection (from other tab) - set the institution list to this user's list
         budgetData.addInstitutionPropertyChangeListener(evt -> {
             institutionSelected(evt);
         });
-        
+
         // propagate account selections
         accountTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (accountTableView.getSelectionModel().getSelectedItem() != null) {
@@ -106,14 +109,14 @@ public class AccountViewController implements Initializable {
             }
         });
 
-        // done the first time through
-        accountTableView.getSelectionModel().selectFirst();
+        // query all DB items into the list and set the Tableview to this list, select first item
+        update();
 
     } // init
 
     @FXML
     protected void addAccount(ActionEvent event) {
-        System.out.println("AVC::addAccount()");
+        logger.info("");
 
         // TODO - move this somewhere - DB table or simple config file?
         // query current institution here and pass in list?
@@ -129,7 +132,7 @@ public class AccountViewController implements Initializable {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(accountName -> {
-            System.out.println("Your choice: " + accountName);
+            logger.info("Your choice: " + accountName);
 
             Account account = new Account();
             account.setAccountName(accountName);
@@ -162,7 +165,7 @@ public class AccountViewController implements Initializable {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(accountName -> {
-            System.out.println("Your choice: " + accountName);
+            logger.info("Your choice: " + accountName);
 
             mAccountDbAdapter.delete(selectedAccount.getId());
             update();
@@ -170,20 +173,13 @@ public class AccountViewController implements Initializable {
 
     } // addAccount
 
-    void setBudgetData(BudgetData budgetData) {
-        this.budgetData = budgetData;
-        init();
-    }
-    
     private void update() {
         Integer institutionId = budgetData.getSelectedInstitution();
 
         accountList.setAll(FXCollections.observableArrayList(mAccountDbAdapter.getAllForInstitution(institutionId)));
-        accountTableView.setItems(accountList);
-        
         accountTableView.getSelectionModel().selectFirst();
     }
-    
+
     private void institutionSelected(PropertyChangeEvent evt) {
         Integer i = (Integer) evt.getNewValue();
 
@@ -191,7 +187,5 @@ public class AccountViewController implements Initializable {
 
         update();
     }
-
-    
 
 } // AccountViewController

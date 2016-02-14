@@ -53,20 +53,26 @@ public class InstitutionViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("IVC::initialize()");
+        logger.info("");
 
         InstitutionNameCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));// must be ?similar? to POJO field
         AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
+
+    }
+
+    void setBudgetData(BudgetData budgetData) {
+        this.budgetData = budgetData;
+        init();
+    }
+
+    private void init() {
+        logger.info("");
 
         mInstitutionDbAdapter = new InstitutionDbAdapter();
         mInstitutionDbAdapter.createConnection();
         mInstitutionDbAdapter.createDatabase();
 
         institutionTableView.setItems(institutionList);
-    }
-
-    private void init() {
-        System.out.println("IVC::init()");
 
         // set the table up with initial data
         //setTable();
@@ -87,14 +93,14 @@ public class InstitutionViewController implements Initializable {
             }
         });
 
-        // done the first time through
-        institutionTableView.getSelectionModel().selectFirst();
-
+        // query all DB items into the list and set the Tableview to this list, select first item
+        update();
+        
     } // init
 
     @FXML
     protected void addInstitution(ActionEvent event) {
-        System.out.println("IVC::addInstitution()");
+        logger.info("");
 
         // TODO - move this somewhere
         List<String> choices = new ArrayList<>();
@@ -124,18 +130,13 @@ public class InstitutionViewController implements Initializable {
 
     } // addInstitution
 
-    void setBudgetData(BudgetData budgetData) {
-        this.budgetData = budgetData;
-        init();
-    }
-
     private void update() {
         Integer userId = budgetData.getSelectedUser();
 
         institutionList.setAll(FXCollections.observableArrayList(mInstitutionDbAdapter.getAllForUser(userId)));
-        institutionTableView.setItems(institutionList);
-        
-         institutionTableView.getSelectionModel().selectFirst();
+        //institutionTableView.setItems(institutionList);
+
+        institutionTableView.getSelectionModel().selectFirst();
     }
 
     private void userSelected(PropertyChangeEvent evt) {

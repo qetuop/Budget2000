@@ -49,7 +49,7 @@ public class MainAppViewController implements Initializable {
     
     @FXML
     private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
+        logger.info("You clicked me!");
         label.setText("Hello World!");
     }
     
@@ -59,7 +59,7 @@ public class MainAppViewController implements Initializable {
     }    
     
     protected void init() {
-        System.out.println("MAVC::init()");
+        logger.info("");
         
         // handle USER selection
         budgetData.addUserPropertyChangeListener( evt -> { tableSelection(evt); } );
@@ -75,13 +75,13 @@ public class MainAppViewController implements Initializable {
     
     @FXML
     protected void fileSaveSelected(Event event) {
-        System.out.println("MAVC::fileSaveSelected");        
+        logger.info("");        
         mainApp.save();
     }
     
     @FXML
     protected void fileOpenSelected(Event event) {
-        System.out.println("MAVC::fileOpenSelected");        
+        logger.info("");        
         mainApp.load();
     }
     
