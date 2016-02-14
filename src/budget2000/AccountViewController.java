@@ -76,10 +76,23 @@ public class AccountViewController implements Initializable {
         AccountNameCol.setCellValueFactory(new PropertyValueFactory<>("AccountName"));
 
         TransactionCol.setCellValueFactory(new PropertyValueFactory<>("TransactionName"));
+
+        accountTableView.setItems(accountList);
+        
+        // propagate account selections
+        accountTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            tableSelection();
+        });
     }
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
+
+        // handle INSTITUTION selection (from other tab) - set the institution list to this user's list
+        budgetData.addInstitutionPropertyChangeListener(evt -> {
+            institutionSelected(evt);
+        });
+
         init();
     }
 
@@ -89,30 +102,20 @@ public class AccountViewController implements Initializable {
         mAccountDbAdapter = new AccountDbAdapter();
         mAccountDbAdapter.createConnection();
         mAccountDbAdapter.createDatabase();
-        
-        accountTableView.setItems(accountList);
-
-        // handle INSTITUTION selection (from other tab) - set the institution list to this user's list
-        budgetData.addInstitutionPropertyChangeListener(evt -> {
-            institutionSelected(evt);
-        });
-
-        // propagate account selections
-        accountTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (accountTableView.getSelectionModel().getSelectedItem() != null) {
-
-                Account selectedAccount = accountTableView.getSelectionModel().getSelectedItem();
-                budgetData.setSelectedAccount(selectedAccount.getId());
-
-                // link institution view - Right hand side table
-                //accountTransactionTableView.setItems(selectedAccount.getTransactionList());
-            }
-        });
 
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
 
     } // init
+
+    private void tableSelection() {
+        Account selectedAccount = accountTableView.getSelectionModel().getSelectedItem();
+        logger.info("selected Account = " + selectedAccount);
+
+        if (selectedAccount != null) {
+            budgetData.setSelectedAccount(selectedAccount.getId());
+        }
+    }
 
     @FXML
     protected void addAccount(ActionEvent event) {

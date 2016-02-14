@@ -22,88 +22,109 @@ import javafx.scene.control.TabPane;
  * @author brian
  */
 public class MainAppViewController implements Initializable {
+
     private static final Logger logger = Logger.getGlobal();
-    
+
     //@FXML Node usersTab;
     //@FXML private UserViewController usersTabController;
     private MainApp mainApp;
     private BudgetData budgetData;
-    
-    @FXML TabPane tabPane; // must match exactly fx:id="tabPane" in fxml file
-    
-    @FXML Node usersTab;
-    @FXML private UserViewController usersTabController;
-    
-    @FXML Node institutionsTab;
-    @FXML private InstitutionViewController institutionsTabController;
-    
-    @FXML Node accountsTab;
-    @FXML private AccountViewController accountsTabController;
-    
-    @FXML Node transactionsTab;
-    @FXML private TransactionViewController transactionsTabController;
-    
-    
+
+    @FXML
+    TabPane tabPane; // must match exactly fx:id="tabPane" in fxml file
+
+    @FXML
+    Node usersTab;
+    @FXML
+    private UserViewController usersTabController;
+
+    @FXML
+    Node institutionsTab;
+    @FXML
+    private InstitutionViewController institutionsTabController;
+
+    @FXML
+    Node accountsTab;
+    @FXML
+    private AccountViewController accountsTabController;
+
+    @FXML
+    Node transactionsTab;
+    @FXML
+    private TransactionViewController transactionsTabController;
+
     @FXML
     private Label label;
-    
+
     @FXML
     private void handleButtonAction(ActionEvent event) {
         logger.info("You clicked me!");
         label.setText("Hello World!");
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO    
-    }    
-    
+    }
+
     protected void init() {
         logger.info("");
-        
+
         // handle USER selection
-        budgetData.addUserPropertyChangeListener( evt -> { tableSelection(evt); } );
-        budgetData.addInstitutionPropertyChangeListener(evt -> { tableSelection(evt); } );
-        budgetData.addAccountPropertyChangeListener(evt -> { tableSelection(evt); } );
-        budgetData.addTransactionPropertyChangeListener(evt -> { tableSelection(evt); } );
-        
+        budgetData.addUserPropertyChangeListener(evt -> {
+            tableSelection(evt);
+        });
+        budgetData.addInstitutionPropertyChangeListener(evt -> {
+            tableSelection(evt);
+        });
+        budgetData.addAccountPropertyChangeListener(evt -> {
+            tableSelection(evt);
+        });
+        budgetData.addTransactionPropertyChangeListener(evt -> {
+            tableSelection(evt);
+        });
+
         userSelected(0);
         institutionSelected(0);
         accountSelected(0);
         transactionSelected(0);
     }
-    
+
     @FXML
     protected void fileSaveSelected(Event event) {
-        logger.info("");        
+        logger.info("");
         mainApp.save();
     }
-    
+
     @FXML
     protected void fileOpenSelected(Event event) {
-        logger.info("");        
+        logger.info("");
         mainApp.load();
     }
-    
+
     void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
     }
-    
+
     void setBudgetData(BudgetData budgetData) {
-        this.budgetData = budgetData;    
+        logger.info("");
+
+        this.budgetData = budgetData;
 
         init();
-        
+
         usersTabController.setBudgetData(budgetData);
         institutionsTabController.setBudgetData(budgetData);
         accountsTabController.setBudgetData(budgetData);
         transactionsTabController.setBudgetData(budgetData);
     }
-    
-    private void tableSelection(PropertyChangeEvent evt) {        
-        Integer i = (Integer)evt.getNewValue(); 
+
+    private void tableSelection(PropertyChangeEvent evt) {
+        logger.info("");
+
+        Integer i = (Integer) evt.getNewValue();
         String prop = evt.getPropertyName();
-        
+
         switch (prop) {
             case BudgetData.USER_SELECTION: {
                 userSelected(i);
@@ -119,57 +140,53 @@ public class MainAppViewController implements Initializable {
             }
             case BudgetData.TRANSACTION_SELECTION: {
                 transactionSelected(i);
-                break;                
+                break;
             }
         }
     } // tableSelection
 
-    private void userSelected(Integer i) {        
-       
-        if ( i == 0 ) {
+    private void userSelected(Integer i) {
+        logger.info(i.toString());
+
+        if (i == 0) {
             institutionsTab.setDisable(true);
-        }
-        else {
+        } else {
             institutionsTab.setDisable(false);
         }
-        
+
         // propagate selection
         //institutionSelected(i);
     }
 
-    private void institutionSelected(Integer i) { 
-        
+    private void institutionSelected(Integer i) {
+
         // TODO: how to gray out tab
-        
-        if ( i == 0 ) {
+        if (i == 0) {
             accountsTab.setDisable(true);;
-        }
-        else {
+        } else {
             accountsTab.setDisable(false);
         }
-        
+
         // propagate selection
         //institutionSelected(i);
     }
 
-    private void accountSelected(Integer i) { 
-       
+    private void accountSelected(Integer i) {
+
         // TODO: how to gray out tab
-        
-        if ( i == 0 ) {
+        if (i == 0) {
             transactionsTab.setDisable(true);;
-        }
-        else {
+        } else {
             transactionsTab.setDisable(false);
         }
-        
+
         // propagate selection
         //institutionSelected(i);
     }
-    
-    private void transactionSelected(Integer i) { 
+
+    private void transactionSelected(Integer i) {
         //Integer i = (Integer)evt.getNewValue();    
         // TODO: how to gray out tab              
     }
-    
+
 }

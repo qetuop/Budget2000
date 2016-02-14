@@ -74,7 +74,13 @@ public class TransactionViewController implements Initializable {
         TransactionDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("Description"));
         TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
 
-        //init();
+        transactionTableView.setItems(transactionList);
+        
+        // propagate transactions selections
+        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {           
+            tableSelection();
+        });
+        
 //        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
 //
 //            @Override
@@ -100,6 +106,12 @@ public class TransactionViewController implements Initializable {
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
+        
+        // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
+        budgetData.addAccountPropertyChangeListener(evt -> {
+            update();
+        });
+        
         init();
     }
 
@@ -110,29 +122,19 @@ public class TransactionViewController implements Initializable {
         mTransactionDbAdapter.createConnection();
         mTransactionDbAdapter.createDatabase();
 
-        transactionTableView.setItems(transactionList);
-
-        // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
-        budgetData.addAccountPropertyChangeListener(evt -> {
-            update();
-        });
-
-        // propagate transactions selections
-        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (transactionTableView.getSelectionModel().getSelectedItem() != null) {
-
-                Transaction selectedTransaction = transactionTableView.getSelectionModel().getSelectedItem();
-                //budgetData.setSelectedTransaction(selectedTransaction);
-
-                // link institution view - Right hand side table
-                //accounttransactionTableView.setItems(selectedTransaction.getTransactionList());
-            }
-        });
-
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
 
     } // init
+    
+    private void tableSelection() {
+        Transaction selectedTransaction = transactionTableView.getSelectionModel().getSelectedItem();
+        logger.info("selected Transaction = " + selectedTransaction);
+
+        if (selectedTransaction != null) {
+            budgetData.setSelectedTransaction(selectedTransaction.getId());
+        }
+    }
 
     @FXML
     protected void contextMenuRequested() {

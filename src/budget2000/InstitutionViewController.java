@@ -58,10 +58,22 @@ public class InstitutionViewController implements Initializable {
         InstitutionNameCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));// must be ?similar? to POJO field
         AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
 
+        institutionTableView.setItems(institutionList);
+        
+        // handle INSTITUTION table selection events
+        institutionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            tableSelection();           
+        });
     }
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
+
+        // handle USER selection (from other tab) - set the institution list to this user's list
+        budgetData.addUserPropertyChangeListener(evt -> {
+            userSelected(evt);
+        });
+
         init();
     }
 
@@ -72,31 +84,19 @@ public class InstitutionViewController implements Initializable {
         mInstitutionDbAdapter.createConnection();
         mInstitutionDbAdapter.createDatabase();
 
-        institutionTableView.setItems(institutionList);
-
-        // set the table up with initial data
-        //setTable();
-        // handle USER selection (from other tab) - set the institution list to this user's list
-        budgetData.addUserPropertyChangeListener(evt -> {
-            userSelected(evt);
-        });
-
-        // handle INSTITUTION table selection events
-        institutionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            if (institutionTableView.getSelectionModel().getSelectedItem() != null) {
-
-                Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();
-                budgetData.setSelectedInstitution(selectedInstitution.getId());
-
-                // link institution view - Right hand side table - future growth
-                //institutionAccountTableView.setItems(selectedInstitution.getAccountList());
-            }
-        });
-
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
-        
+
     } // init
+
+    private void tableSelection() {
+        Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();
+        logger.info("selected Institution = " + selectedInstitution);
+
+        if (selectedInstitution != null) {
+            budgetData.setSelectedInstitution(selectedInstitution.getId());
+        }
+    }
 
     @FXML
     protected void addInstitution(ActionEvent event) {
@@ -134,8 +134,6 @@ public class InstitutionViewController implements Initializable {
         Integer userId = budgetData.getSelectedUser();
 
         institutionList.setAll(FXCollections.observableArrayList(mInstitutionDbAdapter.getAllForUser(userId)));
-        //institutionTableView.setItems(institutionList);
-
         institutionTableView.getSelectionModel().selectFirst();
     }
 

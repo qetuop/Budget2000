@@ -106,7 +106,7 @@ public class UserViewController implements Initializable {
     private TableColumn<User, String> FirstNameCol;   // User = data in tableview? String = field in that class?
     @FXML
     private TableColumn<User, String> LastNameCol;
-    
+
     @FXML
     public TableView<Institution> userInstitutionTableView;
     @FXML
@@ -127,38 +127,35 @@ public class UserViewController implements Initializable {
         LastNameCol.setCellValueFactory(new PropertyValueFactory<>("LastName"));
 //        InstitutionCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));
 
+        // handle USER table selection events
+        userTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            tableSelection();
+        });
+
     }
-    
+
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
         init();
     }
-    
+
     protected void init() {
         logger.info("");
-        
+
         mUserDbAdapter = new UserDbAdapter();
         mUserDbAdapter.createConnection();
         mUserDbAdapter.createDatabase();
         //userList.setAll(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
-        
+
         userTableView.setItems(userList); // should only need to be done once?
 
         // only enable if user selected
         deleteUserBtn.setDisable(true);
         editUserBtn.setDisable(true);
 
-        // handle USER table selection events
-        userTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection();
-        });
-
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
-        
-        // done the first time through
-        
-        
+
     } // init
 
     private void tableSelection() {
@@ -166,9 +163,9 @@ public class UserViewController implements Initializable {
 
             User selectedUser = userTableView.getSelectionModel().getSelectedItem();
             logger.info("selected user now = " + selectedUser);
-            
+
             budgetData.setSelectedUser(selectedUser.getId());
-            
+
             deleteUserBtn.setDisable(false);
             editUserBtn.setDisable(false);
 
@@ -196,7 +193,7 @@ public class UserViewController implements Initializable {
             int userId = mUserDbAdapter.createUser(newUser);
             newUser.setId(userId);
             userList.add(newUser);
-            
+
             logger.info("adding user = " + newUser);
 
             userTableView.getSelectionModel().select(newUser);
@@ -231,8 +228,8 @@ public class UserViewController implements Initializable {
         });
     }
 
-    
     private void update() {
+        logger.info("");
         userList.setAll(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
         userTableView.getSelectionModel().selectFirst();
     }
