@@ -167,7 +167,7 @@ public class UserViewController implements Initializable {
             User selectedUser = userTableView.getSelectionModel().getSelectedItem();
             budgetData.setSelectedUser(selectedUser.getId());
 
-            logger.info("selected user now = " + selectedUser.getFirstName());
+            logger.info("selected user now = " + selectedUser);
             deleteUserBtn.setDisable(false);
             editUserBtn.setDisable(false);
 
@@ -195,6 +195,8 @@ public class UserViewController implements Initializable {
             int userId = mUserDbAdapter.createUser(newUser);
             newUser.setId(userId);
             userList.add(newUser);
+            
+            logger.info("adding user = " + newUser);
 
             userTableView.getSelectionModel().select(newUser);
         });

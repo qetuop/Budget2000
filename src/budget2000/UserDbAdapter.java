@@ -64,7 +64,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
                 String firstName = rs.getString(COLUMN_USER_FIRST_NAME);
                 String lastName = rs.getString(COLUMN_USER_LAST_NAME);
 
-                user = new User(firstName, lastName);
+                user = new User(id, firstName, lastName);
             }
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());

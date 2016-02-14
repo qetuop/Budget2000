@@ -142,6 +142,7 @@ public class AbstractDbAdapter {
             if (c != null) {
                 c.close();
                 c = null; // TODO: is this right?
+                logger.info("Connection Closed");
             }
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ":close: " + e.getClass().getName() + ": " + e.getMessage());

@@ -22,12 +22,12 @@ import javafx.collections.ObservableList;
  * @author Brian
  */
 public class User implements Externalizable {
+
     private final IntegerProperty id;
     private final StringProperty firstName;
     private final StringProperty lastName;
 
     //private ObservableList<Institution> institutionList;
-
     public User() {
         this.id = new SimpleIntegerProperty(this, "id", 0);
         this.firstName = new SimpleStringProperty(this, "firstName", "");
@@ -42,7 +42,7 @@ public class User implements Externalizable {
         this.setFirstName(firstName);
         this.setLastName(lastName);
     }
-    
+
     public User(String firstName, String lastName) {
         this();
 
@@ -53,15 +53,15 @@ public class User implements Externalizable {
     public final Integer getId() {
         return id.get();
     }
-    
-    public final void setId( Integer value ) {
+
+    public final void setId(Integer value) {
         id.set(value);
     }
-    
+
     public IntegerProperty getIdProperty() {
         return id;
     }
-    
+
     public final String getFirstName() {
         return firstName.get();
     }
@@ -86,13 +86,11 @@ public class User implements Externalizable {
         return lastName;
     }
 
-//    public void addInstitution(Institution institution) {
-//        this.institutionList.add(institution);
-//    }
-//
-//    ObservableList<Institution> getInstitutionList() {
-//        return institutionList;
-//    }
+    @Override
+    public String toString() {
+        return String.format("User{ %d %s %s }",
+                this.getId(), this.getFirstName(), this.getLastName());
+    }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
