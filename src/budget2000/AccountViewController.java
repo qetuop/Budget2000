@@ -78,10 +78,10 @@ public class AccountViewController implements Initializable {
         TransactionCol.setCellValueFactory(new PropertyValueFactory<>("TransactionName"));
 
         accountTableView.setItems(accountList);
-        
+
         // propagate account selections
         accountTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection();
+            tableSelection(newValue);
         });
     }
 
@@ -90,7 +90,8 @@ public class AccountViewController implements Initializable {
 
         // handle INSTITUTION selection (from other tab) - set the institution list to this user's list
         budgetData.addInstitutionPropertyChangeListener(evt -> {
-            institutionSelected(evt);
+//            institutionSelected(evt);
+            update();
         });
 
         init();
@@ -108,13 +109,9 @@ public class AccountViewController implements Initializable {
 
     } // init
 
-    private void tableSelection() {
-        Account selectedAccount = accountTableView.getSelectionModel().getSelectedItem();
+    private void tableSelection(Account selectedAccount) {
         logger.info("selected Account = " + selectedAccount);
-
-        if (selectedAccount != null) {
-            budgetData.setSelectedAccount(selectedAccount.getId());
-        }
+        budgetData.setSelectedAccount(selectedAccount);
     }
 
     @FXML
@@ -183,12 +180,11 @@ public class AccountViewController implements Initializable {
         accountTableView.getSelectionModel().selectFirst();
     }
 
-    private void institutionSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer) evt.getNewValue();
-
-        logger.info("i = " + i);
-
-        update();
-    }
-
+//    private void institutionSelected(PropertyChangeEvent evt) {
+//        Integer i = (Integer) evt.getNewValue();
+//
+//        logger.info("i = " + i);
+//
+//        update();
+//    }
 } // AccountViewController

@@ -111,6 +111,9 @@ public class MainApp extends Application {
         if (file != null) {
             System.out.println("file " + file.getName());
             
+            if (file.getName().compareTo(AbstractDbAdapter.DATABASE_NAME) == 0 ) {
+                return rv;
+            }
 
             // backup current DB
             File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);

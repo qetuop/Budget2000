@@ -127,9 +127,11 @@ public class UserViewController implements Initializable {
         LastNameCol.setCellValueFactory(new PropertyValueFactory<>("LastName"));
 //        InstitutionCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));
 
+        userTableView.setItems(userList); // should only need to be done once?
+
         // handle USER table selection events
         userTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection();
+            tableSelection(newValue);
         });
 
     }
@@ -147,8 +149,6 @@ public class UserViewController implements Initializable {
         mUserDbAdapter.createDatabase();
         //userList.setAll(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
 
-        userTableView.setItems(userList); // should only need to be done once?
-
         // only enable if user selected
         deleteUserBtn.setDisable(true);
         editUserBtn.setDisable(true);
@@ -158,21 +158,14 @@ public class UserViewController implements Initializable {
 
     } // init
 
-    private void tableSelection() {
-        if (userTableView.getSelectionModel().getSelectedItem() != null) {
+    private void tableSelection(User selectedUser) {
+        logger.info("selected user now = " + selectedUser);
+        budgetData.setSelectedUser(selectedUser);
 
-            User selectedUser = userTableView.getSelectionModel().getSelectedItem();
-            logger.info("selected user now = " + selectedUser);
-
-            budgetData.setSelectedUser(selectedUser.getId());
-
+        if (selectedUser != null) {
             deleteUserBtn.setDisable(false);
             editUserBtn.setDisable(false);
-
-            // link institution view - Right hand side table
-//                userInstitutionTableView.setItems(selectedUser.getInstitutionList());
         } else {
-            logger.info("No user selected");
             deleteUserBtn.setDisable(true);
             editUserBtn.setDisable(true);
         }

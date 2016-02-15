@@ -59,10 +59,10 @@ public class InstitutionViewController implements Initializable {
         AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
 
         institutionTableView.setItems(institutionList);
-        
+
         // handle INSTITUTION table selection events
         institutionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection();           
+            tableSelection(newValue);
         });
     }
 
@@ -71,7 +71,8 @@ public class InstitutionViewController implements Initializable {
 
         // handle USER selection (from other tab) - set the institution list to this user's list
         budgetData.addUserPropertyChangeListener(evt -> {
-            userSelected(evt);
+//            userSelected(evt);
+            update();
         });
 
         init();
@@ -89,13 +90,9 @@ public class InstitutionViewController implements Initializable {
 
     } // init
 
-    private void tableSelection() {
-        Institution selectedInstitution = institutionTableView.getSelectionModel().getSelectedItem();
+    private void tableSelection(Institution selectedInstitution) {
         logger.info("selected Institution = " + selectedInstitution);
-
-        if (selectedInstitution != null) {
-            budgetData.setSelectedInstitution(selectedInstitution.getId());
-        }
+        budgetData.setSelectedInstitution(selectedInstitution);
     }
 
     @FXML
@@ -137,12 +134,11 @@ public class InstitutionViewController implements Initializable {
         institutionTableView.getSelectionModel().selectFirst();
     }
 
-    private void userSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer) evt.getNewValue();
-
-        logger.info("i = " + i);
-
-        update();
-    }
-
+//    private void userSelected(PropertyChangeEvent evt) {
+//        Integer i = (Integer) evt.getNewValue();
+//
+//        logger.info("i = " + i);
+//
+//        update();
+//    }
 } // InstitutionViewController

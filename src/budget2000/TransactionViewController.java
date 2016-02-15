@@ -75,12 +75,12 @@ public class TransactionViewController implements Initializable {
         TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
 
         transactionTableView.setItems(transactionList);
-        
+
         // propagate transactions selections
-        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {           
-            tableSelection();
+        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            tableSelection(newValue);
         });
-        
+
 //        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
 //
 //            @Override
@@ -106,12 +106,13 @@ public class TransactionViewController implements Initializable {
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
-        
+
         // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
         budgetData.addAccountPropertyChangeListener(evt -> {
-            update();
+//            accountSelected(evt);
+update();
         });
-        
+
         init();
     }
 
@@ -126,14 +127,10 @@ public class TransactionViewController implements Initializable {
         update();
 
     } // init
-    
-    private void tableSelection() {
-        Transaction selectedTransaction = transactionTableView.getSelectionModel().getSelectedItem();
-        logger.info("selected Transaction = " + selectedTransaction);
 
-        if (selectedTransaction != null) {
-            budgetData.setSelectedTransaction(selectedTransaction.getId());
-        }
+    private void tableSelection(Transaction selectedTransaction) {;
+        logger.info("selected Transaction = " + selectedTransaction);
+        budgetData.setSelectedTransaction(selectedTransaction);
     }
 
     @FXML
@@ -302,16 +299,12 @@ public class TransactionViewController implements Initializable {
         transactionTableView.getSelectionModel().selectFirst();
     }
 
-    private void institutionSelected(PropertyChangeEvent evt) {
-        Integer i = (Integer) evt.getNewValue();
-
-        logger.info("i = " + i);
-
-        update();
-    }
-
-    public void setFirstEntry() {
-        transactionTableView.getSelectionModel().selectFirst();
-    }
+//    private void accountSelected(PropertyChangeEvent evt) {
+//        Integer i = (Integer) evt.getNewValue();
+//
+//        logger.info("i = " + i);
+//
+//        update();
+//    }
 
 } // TransactionViewController

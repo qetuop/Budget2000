@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -23,6 +24,7 @@ import javafx.collections.ObservableList;
  * @author Brian
  */
 public class BudgetData {
+
     private static final Logger logger = Logger.getGlobal();
 
 //    private ObservableList<User> userList = FXCollections.observableArrayList();
@@ -67,57 +69,64 @@ public class BudgetData {
         return mSelectedTransaction;
     }
 
-    public void setSelectedUser(Integer i) {
-        logger.info(i.toString());
-        
+    public void setSelectedUser(User user) {
+        logger.info("");
+
         Integer old = mSelectedUser;
-        mSelectedUser = i;
+
+        if (user == null) {
+            mSelectedUser = 0;
+            setSelectedInstitution(null);
+        } else {
+            mSelectedUser = user.getId();
+        }
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, USER_SELECTION, old, mSelectedUser);
-        
-        // un set next lower class - should the data class do this or a controller class? MAVC?
-        if ( i == 0 )
-            setSelectedInstitution(0);
-
-        // TODO: should this happen before the above
         pcsUser.firePropertyChange(evt);
     }
 
-    public void setSelectedInstitution(Integer i) {
-        logger.info(i.toString());
-        
+    public void setSelectedInstitution(Institution institution) {
+        logger.info("");
+
         Integer old = mSelectedInstitution;
-        mSelectedInstitution = i;
+
+        if (institution == null) {
+            mSelectedInstitution = 0;
+            setSelectedAccount(null);
+        } else {
+            mSelectedInstitution = institution.getId();
+        }
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, INSTITUTION_SELECTION, old, mSelectedInstitution);
-        
-        // un set next lower class - should the data class do this or a controller class? MAVC?
-        if ( i == 0 )
-            setSelectedAccount(0);
-        
         pcsInstitution.firePropertyChange(evt);
     }
 
-    public void setSelectedAccount(Integer i) {
-        logger.info(i.toString());
-        
+    public void setSelectedAccount(Account account) {
+        logger.info("");
+
         Integer old = mSelectedAccount;
-        mSelectedAccount = i;
+
+        if (account == null) {
+            mSelectedAccount = 0;
+            setSelectedTransaction(null);
+        } else {
+            mSelectedAccount = account.getId();
+        }
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, ACCOUNT_SELECTION, old, mSelectedAccount);
-        
-        // un set next lower class - should the data class do this or a controller class? MAVC?
-        if ( i == 0 )
-            setSelectedTransaction(0);
-        
         pcsAccount.firePropertyChange(evt);
     }
 
-    void setSelectedTransaction(Integer i) {
-        logger.info(i.toString());
-        
+    void setSelectedTransaction(Transaction transaction) {
+        logger.info("");
+
         Integer old = mSelectedTransaction;
-        mSelectedTransaction = i;
+        
+        if (transaction == null) {
+            mSelectedTransaction = 0;
+        } else {
+            mSelectedTransaction = transaction.getId();
+        }
 
         PropertyChangeEvent evt = new PropertyChangeEvent(this, TRANSACTION_SELECTION, old, mSelectedTransaction);
         pcsTransaction.firePropertyChange(evt);
