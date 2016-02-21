@@ -56,7 +56,7 @@ public class InstitutionViewController implements Initializable {
         logger.info("");
 
         InstitutionNameCol.setCellValueFactory(new PropertyValueFactory<>("InstitutionName"));// must be ?similar? to POJO field
-        AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
+//        AccountCol.setCellValueFactory(new PropertyValueFactory<>("AccountName")); // must be ?similar? to POJO field
 
         institutionTableView.setItems(institutionList);
 

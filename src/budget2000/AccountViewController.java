@@ -75,7 +75,7 @@ public class AccountViewController implements Initializable {
         logger.info("");
         AccountNameCol.setCellValueFactory(new PropertyValueFactory<>("AccountName"));
 
-        TransactionCol.setCellValueFactory(new PropertyValueFactory<>("TransactionName"));
+//        TransactionCol.setCellValueFactory(new PropertyValueFactory<>("TransactionName"));
 
         accountTableView.setItems(accountList);
 

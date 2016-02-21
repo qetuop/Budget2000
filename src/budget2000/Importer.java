@@ -63,7 +63,8 @@ public class Importer {
                 //Transaction transaction = new Transaction(localDate, line[2], bigDecimal);
                 Transaction transaction = new Transaction();
                 transaction.setDate(date.toEpochDay());
-                transaction.setDescription(line[2]);
+                transaction.setName(line[2]);
+                transaction.setDisplayName(line[2]);
                 transaction.setAmount(bigDecimal.doubleValue());
 
                 transactionList.add(transaction);

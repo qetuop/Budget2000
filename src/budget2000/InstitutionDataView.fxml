@@ -34,7 +34,7 @@
                 </VBox>
             </children>
         </AnchorPane>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+<!--        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <children>
                 <TableView fx:id="institutionAccountTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
@@ -42,6 +42,6 @@
                     </columns>
                 </TableView>
             </children>
-        </AnchorPane>
+        </AnchorPane>-->
     </items>
 </SplitPane>

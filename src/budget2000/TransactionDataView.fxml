@@ -18,9 +18,10 @@
                     <children>
                         <TableView fx:id="transactionTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onContextMenuRequested="#contextMenuRequested" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="TransactionDateCol" prefWidth="75.0" text="Date" />
-                                <TableColumn fx:id="TransactionDescriptionCol" prefWidth="295.0" text="Name" />
-                                <TableColumn fx:id="TransactionAmountCol" prefWidth="295.0" text="Amount" />
+                                <TableColumn fx:id="TransactionDateCol" prefWidth="150.0" text="Date" />
+                                <TableColumn fx:id="TransactionNameCol" prefWidth="150.0" text="Name" />
+                                <TableColumn fx:id="TransactionDisplayNameCol" prefWidth="150.0" text="DisplayName" />
+                                <TableColumn fx:id="TransactionAmountCol" prefWidth="150.0" text="Amount" />
                             </columns>
                         </TableView>
                         <FlowPane alignment="CENTER" prefHeight="52.0" prefWidth="296.0">

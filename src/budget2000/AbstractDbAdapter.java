@@ -50,7 +50,9 @@ public class AbstractDbAdapter {
 
     // Transaction TABLE
     public static final String COLUMN_TRANSACTION_DATE = "date";
-    public static final String COLUMN_TRANSACTION_DESCRIPTION = "description";    
+    public static final String COLUMN_TRANSACTION_NAME = "name";   
+    public static final String COLUMN_TRANSACTION_DISPLAY_NAME = "display_name";   
+    public static final String COLUMN_TRANSACTION_AMOUNT = "amount"; 
     public static final String COLUMN_TRANSACTION_ACCOUNT_ID = "account_id";
 
     // Categories TABLE
@@ -66,23 +68,25 @@ public class AbstractDbAdapter {
     private static final String CREATE_TABLE_INSTITUTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_INSTITUTION + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
-            + COLUMN_INSTITUTION_NAME + " text, "
-            + COLUMN_INSTITUTION_USER_ID + " integer not null references " + TABLE_USER + "(" + COLUMN_ID +") ON DELETE CASCADE"
+            + COLUMN_INSTITUTION_USER_ID + " integer not null references " + TABLE_USER + "(" + COLUMN_ID +") ON DELETE CASCADE, "
+            + COLUMN_INSTITUTION_NAME + " text "           
             + ")";  // no trailing ';'
     
     private static final String CREATE_TABLE_ACCOUNT = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ACCOUNT + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
-            + COLUMN_ACCOUNT_NAME + " text, "
-            + COLUMN_ACCOUNT_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE"
+            + COLUMN_ACCOUNT_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
+            + COLUMN_ACCOUNT_NAME + " text "            
             + ")";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
+            + COLUMN_TRANSACTION_ACCOUNT_ID + " integer not null references " + TABLE_ACCOUNT + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
             + COLUMN_TRANSACTION_DATE + " integer not null, "
-            + COLUMN_TRANSACTION_DESCRIPTION + " text, "
-            + COLUMN_TRANSACTION_ACCOUNT_ID + " integer not null references " + TABLE_ACCOUNT + "(" + COLUMN_ID + ") ON DELETE CASCADE" 
+            + COLUMN_TRANSACTION_NAME + " text, "
+            + COLUMN_TRANSACTION_DISPLAY_NAME + " text, "
+            + COLUMN_TRANSACTION_AMOUNT + " decimal(10,2) "             
             + ")";  // no trailing ';'
 
     public void createConnection() {

@@ -9,10 +9,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.text.DateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.TimeZone;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -34,45 +31,48 @@ public class Transaction implements Externalizable {
 //    private DoubleProperty amount;
 //    private static DoubleProperty id;
     private final IntegerProperty id;
-    private final StringProperty description;
+    private final StringProperty name;
+    private final StringProperty displayName;
     private final IntegerProperty accountId;
     private final LongProperty date;
     private final DoubleProperty amount;
 
     public Transaction() {
         this.id = new SimpleIntegerProperty(this, "id", 0);
-        this.description = new SimpleStringProperty(this, "description", "");
+        this.name = new SimpleStringProperty(this, "name", "");
+        this.displayName = new SimpleStringProperty(this, "displayName", "");
         this.accountId = new SimpleIntegerProperty(this, "accountId", 0);
         this.date = new SimpleLongProperty(this, "date", 0);
         this.amount = new SimpleDoubleProperty(this, "amount", 0);
     }
 
-    public Transaction(Integer id, Long date, String description, Integer accountId, Double amount) {
+    public Transaction(Integer id, Long date, String name, String displayName, Integer accountId, Double amount) {
         this();
 
         this.setId(id);
-        this.setDescription(description);
+        this.setName(name);
+        this.setDisplayName(displayName);
         this.setAccountId(accountId);
         this.setDate(date);
         this.setAmount(amount);
     }
     
-    public Transaction(Integer id, Long date, String description, Integer accountId) {
-        this();
+//    public Transaction(Integer id, Long date, String description, Integer accountId) {
+//        this();
+//
+//        this.setId(id);
+//        this.setName(description);
+//        this.setAccountId(accountId);
+//        this.setDate(date);
+//    }
 
-        this.setId(id);
-        this.setDescription(description);
-        this.setAccountId(accountId);
-        this.setDate(date);
-    }
-
-    public Transaction(Long date, String description, Integer accountId) {
-        this();
-
-        this.setDescription(description);
-        this.setAccountId(accountId);
-        this.setDate(date);
-    }
+//    public Transaction(Long date, String description, Integer accountId) {
+//        this();
+//
+//        this.setDescription(description);
+//        this.setAccountId(accountId);
+//        this.setDate(date);
+//    }
 
     public final Integer getId() {
         return id.get();
@@ -86,16 +86,28 @@ public class Transaction implements Externalizable {
         return id;
     }
 
-    public final String getDescription() {
-        return description.get();
+    public final String getName() {
+        return name.get();
     }
 
-    public final void setDescription(String value) {
-        description.set(value);
+    public final void setName(String value) {
+        name.set(value);
     }
 
-    public final StringProperty getDescriptionProperty() {
-        return description;
+    public final StringProperty getNameProperty() {
+        return name;
+    }
+    
+    public final String getDisplayName() {
+        return displayName.get();
+    }
+
+    public final void setDisplayName(String value) {
+        displayName.set(value);
+    }
+
+    public final StringProperty getDisplayNameProperty() {
+        return displayName;
     }
 
     public final Integer getAccountId() {
@@ -138,22 +150,23 @@ public class Transaction implements Externalizable {
 
     @Override
     public String toString() {
-        DateFormat df = DateFormat.getDateInstance();
-        df.setTimeZone(TimeZone.getTimeZone("EST"));
-        String d = df.format(new Date(getDate()));
-
-        return String.format("Transaction{ %d %d (%s) \"%s\" %s }", 
-                this.getId(), getDate(), d, getDescription(), getAccountId());
+        //DateFormat df = DateFormat.getDateInstance();
+        //df.setTimeZone(TimeZone.getTimeZone("EST"));
+        //String d = df.format(new Date(getDate()));
+        LocalDate localDate = LocalDate.ofEpochDay(getDate());
+                
+        return String.format("Transaction{ %d %d %d (%s) \"%s\" \"%s\" }", 
+                this.getId(), getAccountId(), getDate(), localDate, getName(), getDisplayName());
     }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(getDescription());
+        //out.writeObject(getName());
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        setDescription((String) in.readObject());
+        //setDescription((String) in.readObject());
     }
 
 } // Account

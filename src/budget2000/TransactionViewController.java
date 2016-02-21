@@ -69,8 +69,8 @@ class TransactionDialog extends Dialog {
         LocalDate locatDate = LocalDate.ofEpochDay(transaction.getDate());
         datePicker.setValue(locatDate);
 
-        name.setText(transaction.getDescription());
-        displayName.setText(transaction.getDescription());
+        name.setText(transaction.getName());
+        displayName.setText(transaction.getDisplayName());
         amount.setText(Double.toString(transaction.getAmount()));
     }
 
@@ -121,7 +121,8 @@ class TransactionDialog extends Dialog {
                 }
 
                 Transaction transaction = new Transaction();
-                transaction.setDescription(displayName.getText());
+                transaction.setName(name.getText());
+                transaction.setDisplayName(displayName.getText());
                 transaction.setAmount(bigDecimal.doubleValue());
                 transaction.setDate(datePicker.getValue().toEpochDay());
 
@@ -144,7 +145,9 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableView<Transaction> transactionTableView;
     @FXML
-    private TableColumn<Transaction, String> TransactionDescriptionCol;
+    private TableColumn<Transaction, String> TransactionNameCol;
+    @FXML
+    private TableColumn<Transaction, String> TransactionDisplayNameCol;
     @FXML
     private TableColumn<Transaction, Long> TransactionDateCol;
     @FXML
@@ -160,7 +163,8 @@ public class TransactionViewController implements Initializable {
         logger.info("");
 
         TransactionDateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
-        TransactionDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("Description"));
+        TransactionNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        TransactionDisplayNameCol.setCellValueFactory(new PropertyValueFactory<>("DisplayName"));
         TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
 
         transactionTableView.setItems(transactionList);
@@ -204,7 +208,6 @@ public class TransactionViewController implements Initializable {
 
         // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
         budgetData.addAccountPropertyChangeListener(evt -> {
-//            accountSelected(evt);
             update();
         });
 
@@ -255,15 +258,18 @@ public class TransactionViewController implements Initializable {
         if (list != null) {
             for (File file : list) {
                 Importer i = new Importer();
+                
                 ArrayList<Transaction> newTransList = i.readData(file);
                 newTransList.stream().forEach((t) -> {
+                    
                     t.setAccountId(budgetData.getSelectedAccount());
                     int transactionId = mTransactionDbAdapter.createTransaction(t);
                     t.setId(transactionId);
+                    
                     transactionList.add(t); // need to add to DB? or have list rebuild from DB?
 
                     transactionTableView.getSelectionModel().select(t);
-                    //Context.getInstance().setTransactionId(transactionId);
+
                 });
             }
         }

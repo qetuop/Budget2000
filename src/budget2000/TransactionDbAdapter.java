@@ -31,13 +31,17 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             c.setAutoCommit(false);
             stmt = c.createStatement();
 
-            String sql = String.format("INSERT INTO %s (%s, %s, %s) VALUES (%d, '%s','%s');",
+            String sql = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (%d, '%s','%s', %f, %d);",
                     TABLE_TRANSACTION,
                     COLUMN_TRANSACTION_DATE,
-                    COLUMN_TRANSACTION_DESCRIPTION,                    
+                    COLUMN_TRANSACTION_NAME,      
+                    COLUMN_TRANSACTION_DISPLAY_NAME,
+                    COLUMN_TRANSACTION_AMOUNT,          
                     COLUMN_TRANSACTION_ACCOUNT_ID,
                     transaction.getDate(),
-                    transaction.getDescription(),
+                    transaction.getName(),
+                    transaction.getDisplayName(),
+                    transaction.getAmount(),
                     transaction.getAccountId());
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -67,9 +71,11 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             if (rs != null) {
                 int id = rs.getInt(COLUMN_ID);
                 Long date = rs.getLong(COLUMN_TRANSACTION_DATE);
-                String description = rs.getString(COLUMN_TRANSACTION_DESCRIPTION);
+                String name = rs.getString(COLUMN_TRANSACTION_NAME);
+                String displayName = rs.getString(COLUMN_TRANSACTION_DISPLAY_NAME);
+                Double amount = rs.getDouble(COLUMN_TRANSACTION_AMOUNT);
                 Integer accountId = rs.getInt(COLUMN_TRANSACTION_ACCOUNT_ID);
-                transaction = new Transaction(id, date, description, accountId);
+                transaction = new Transaction(id, date, name, displayName, accountId, amount);
             }
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
