@@ -18,11 +18,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  *
@@ -40,23 +40,13 @@ public class Importer {
             String[] line;
             line = csvReader.readNext(); // get first non line
             while ((line = csvReader.readNext()) != null) {
-                // nextLine[] is an array of values from the line
-                //System.out.println(line);
-                //for ( String foo : nextLine ) {
-                //System.out.println(foo.trim());
 
-                //String[] line = csvReader.readNext();
-//                    String out = String.format("%s, %s, %s, %s, %s", line[0], line[1], line[2], line[3], line[4]);
                 //"Transaction Date"  ,  "Posted Date"  ,  "Description"  ,  "Debit"  ,  "Credit"
                 //"11/13/2014"  ,  "11/14/2014"  ,  "7-ELEVEN 12345 Foo FG"  ,  "41.33",""
-                //                   System.out.println(out);
-                // convert date string to long
-                DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-                System.out.println("line 0 " + line[0]);
-                System.out.println("line 1 " + line[1]);
-                Date date = df.parse(line[0]);
-                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                Date date2 = df.parse(line[1]);
+
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                LocalDate date = LocalDate.parse(line[0], formatter);
 
                 String amount = "";
                 if (line[3].length() != 0) {
@@ -70,13 +60,12 @@ public class Importer {
                 decimalFormat.setParseBigDecimal(true);
                 BigDecimal bigDecimal = (BigDecimal) decimalFormat.parse(amount);
 
-                
                 //Transaction transaction = new Transaction(localDate, line[2], bigDecimal);
                 Transaction transaction = new Transaction();
-                transaction.setDate(date.getTime());
+                transaction.setDate(date.toEpochDay());
                 transaction.setDescription(line[2]);
                 transaction.setAmount(bigDecimal.doubleValue());
-                
+
                 transactionList.add(transaction);
                 System.out.println(transaction + "\n");
                 // }

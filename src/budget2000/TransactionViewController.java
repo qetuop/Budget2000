@@ -5,13 +5,13 @@
  */
 package budget2000;
 
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +29,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -44,6 +46,93 @@ import javafx.stage.Stage;
  *
  * @author Brian
  */
+class TransactionDialog extends Dialog {
+
+    GridPane grid = new GridPane();
+    DatePicker datePicker = new DatePicker();
+    TextField name = new TextField();
+    TextField displayName = new TextField();
+    TextField amount = new TextField();
+
+    // restrict amount text field to numbers
+    TextFormatter<String> amountFormatter = new TextFormatter<String>(change -> {
+        change.setText(change.getText().replaceAll("[\\D+]", ""));
+//            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
+//            change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{2})?$]", ""));
+        return change;
+    });
+
+    TransactionDialog(Transaction transaction) {
+        init();
+
+        //LocalDate locatDate = transaction.getDate();
+        LocalDate locatDate = LocalDate.ofEpochDay(transaction.getDate());
+        datePicker.setValue(locatDate);
+
+        name.setText(transaction.getDescription());
+        displayName.setText(transaction.getDescription());
+        amount.setText(Double.toString(transaction.getAmount()));
+    }
+
+    TransactionDialog() {
+        init();
+    }
+
+    private void init() {
+        // Set the button types.
+        getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        amount.setTextFormatter(amountFormatter);
+
+        name.setPromptText("Transaction Name");
+        displayName.setPromptText("Display Name");
+        amount.setPromptText("Transaction Amount");
+
+        datePicker.setValue(LocalDate.now());
+        amount.setText("0.0");
+
+        // Create the first and last labels and fields.        
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Transaction Date:"), 0, 0);
+        grid.add(datePicker, 1, 0);
+        grid.add(new Label("Transaction Name:"), 0, 1);
+        grid.add(name, 1, 1);
+        grid.add(new Label("Display Name:"), 0, 2);
+        grid.add(displayName, 1, 2);
+        grid.add(new Label("Transaction Amount:"), 0, 3);
+        grid.add(amount, 1, 3);
+
+        getDialogPane().setContent(grid);
+
+        // Convert the result to a Transaction when the ok button is clicked.
+        setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+
+                DecimalFormat decimalFormat = new DecimalFormat();
+                decimalFormat.setParseBigDecimal(true);
+                BigDecimal bigDecimal = BigDecimal.ZERO;
+                try {
+                    bigDecimal = (BigDecimal) decimalFormat.parse(amount.getText());
+                } catch (ParseException ex) {
+                    Logger.getLogger(TransactionViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                Transaction transaction = new Transaction();
+                transaction.setDescription(displayName.getText());
+                transaction.setAmount(bigDecimal.doubleValue());
+                transaction.setDate(datePicker.getValue().toEpochDay());
+
+                return transaction;
+            }
+            return null;
+        });
+    }
+
+} // TransactionDialog
+
 public class TransactionViewController implements Initializable {
 
     private static final Logger logger = Logger.getGlobal();
@@ -57,7 +146,7 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableColumn<Transaction, String> TransactionDescriptionCol;
     @FXML
-    private TableColumn<Transaction, LocalDate> TransactionDateCol;
+    private TableColumn<Transaction, Long> TransactionDateCol;
     @FXML
     private TableColumn<Transaction, Double> TransactionAmountCol;
 
@@ -81,27 +170,33 @@ public class TransactionViewController implements Initializable {
             tableSelection(newValue);
         });
 
-//        TransactionDateCol.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<LocalDate>() {
-//
-//            @Override
-//            public String toString(LocalDate t) {
-//                if (t==null) {
-//                    return "" ;
-//                } else {
-//                    return dateFormat.format(t);
-//                }
-//            }
-//
-//            @Override
-//            public LocalDate fromString(String string) {
-//                try {
-//                    return LocalDate.parse(string, dateFormat);
-//                } catch (DateTimeParseException exc) {
-//                    return null ;
-//                }
-//            }
-//
-//        }));
+        // Custom rendering of the table cell.
+        TransactionDateCol.setCellFactory(column -> {
+            return new TableCell<Transaction, Long>() {
+                @Override
+                protected void updateItem(Long item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        // Format date.
+                        setText(dateFormat.format(LocalDate.ofEpochDay(item)));
+
+//                        // Style all dates in March with a different color.
+//                        if (item.getMonth() == Month.MARCH) {
+//                            setTextFill(Color.CHOCOLATE);
+//                            setStyle("-fx-background-color: yellow");
+//                        } else {
+//                            setTextFill(Color.BLACK);
+//                            setStyle("");
+//                        }
+                    }
+                }
+            };
+        });
+
     } // initialize
 
     void setBudgetData(BudgetData budgetData) {
@@ -110,7 +205,7 @@ public class TransactionViewController implements Initializable {
         // handle ACCOUNT selection (from other tab) - set the institution list to this user's list
         budgetData.addAccountPropertyChangeListener(evt -> {
 //            accountSelected(evt);
-update();
+            update();
         });
 
         init();
@@ -187,93 +282,36 @@ update();
     @FXML
     protected void editTransaction(ActionEvent event) {
         logger.info("");
+
+        Transaction transaction = transactionTableView.getSelectionModel().getSelectedItem();
+
+        TransactionDialog dialog = new TransactionDialog(transaction);
+        dialog.setTitle("Edit Transaction");
+        dialog.setHeaderText("<header text>");
+
+        Optional<Transaction> result = dialog.showAndWait();
+
+        // Add to data store and set it as table selection
+        result.ifPresent(newTransaction -> {
+            logger.info("edit Trans " + newTransaction);
+
+//            newTransaction.setAccountId(budgetData.getSelectedAccount());
+//
+//            int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
+//            newTransaction.setId(transactionId);
+//            transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
+//
+//            transactionTableView.getSelectionModel().select(newTransaction);
+        });
     }
 
     @FXML
     protected void addTransaction(ActionEvent event) {
         logger.info("");
-// Create the custom dialog.
-        Dialog<Transaction> dialog = new Dialog<>();
+
+        TransactionDialog dialog = new TransactionDialog();
         dialog.setTitle("New Transaction");
         dialog.setHeaderText("<header text>");
-
-        // Set the button types.
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        // Create the first and last labels and fields.
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
-        DatePicker datePicker = new DatePicker();
-        datePicker.setValue(LocalDate.now());
-        TextField dateTF = new TextField();
-        dateTF.setPromptText("Transaction Date");
-
-        TextField name = new TextField();
-        name.setPromptText("Transaction Name");
-
-        TextField displayName = new TextField();
-        displayName.setPromptText("Display Name");
-
-        TextField amount = new TextField();
-        amount.setPromptText("Transaction Amount");
-        amount.setText("0.0");
-
-        // restrict amount text field to numbers
-        TextFormatter<String> formatter = new TextFormatter<String>(change -> {
-            change.setText(change.getText().replaceAll("[\\D+]", ""));
-//            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
-//            change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{2})?$]", ""));
-            return change;
-        });
-        amount.setTextFormatter(formatter);
-
-        grid.add(new Label("Transaction Date:"), 0, 0);
-        grid.add(datePicker, 1, 0);
-        grid.add(new Label("Transaction Name:"), 0, 1);
-        grid.add(name, 1, 1);
-        grid.add(new Label("Display Name:"), 0, 2);
-        grid.add(displayName, 1, 2);
-        grid.add(new Label("Transaction Amount:"), 0, 3);
-        grid.add(amount, 1, 3);
-
-        // Enable/Disable ok button depending on whether a first name was entered.
-//        Node okButton = dialog.getDialogPane().lookupButton(ButtonType.OK);
-//        okButton.setDisable(true);
-//        // Do some validation (using the Java 8 lambda syntax).
-//        firstName.textProperty().addListener((observable, oldValue, newValue) -> {
-//            okButton.setDisable(newValue.trim().isEmpty());
-//        });
-        dialog.getDialogPane().setContent(grid);
-
-        // Request focus on the first field by default.
-        //Platform.runLater(() -> firstName.requestFocus());
-        // Convert the result to a Transaction when the ok button is clicked.
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                //DateTimeFormatter dtf = DateTimeFormat.forPattern("MM-dd-yyyy");
-                //LocalDate dt = dateFormat.parseLocalDate(date.getText());
-
-                //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
-                //LocalDate ld = LocalDate.parse(date.getText(), formatter);
-                DecimalFormat decimalFormat = new DecimalFormat();
-                decimalFormat.setParseBigDecimal(true);
-                BigDecimal bigDecimal = BigDecimal.ZERO;
-                try {
-                    bigDecimal = (BigDecimal) decimalFormat.parse(amount.getText());
-                } catch (ParseException ex) {
-                    Logger.getLogger(TransactionViewController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                //return new Transaction(datePicker.getValue(), displayName.getText(), bigDecimal);
-                Transaction transaction = new Transaction();
-                transaction.setDescription(displayName.getText());
-
-                return transaction;
-            }
-            return null;
-        });
 
         Optional<Transaction> result = dialog.showAndWait();
 
@@ -306,5 +344,4 @@ update();
 //
 //        update();
 //    }
-
 } // TransactionViewController

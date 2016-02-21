@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.TimeZone;
 import javafx.beans.property.DoubleProperty;
@@ -108,7 +109,7 @@ public class Transaction implements Externalizable {
     public IntegerProperty getAccountIdProperty() {
         return accountId;
     }
-
+   
     public final Long getDate() {
         return date.get();
     }
