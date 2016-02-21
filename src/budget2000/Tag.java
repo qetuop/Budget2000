@@ -31,11 +31,11 @@ public class Tag {
         this.setName(name);
     }
 
-    public String getName() {
+    public final String getName() {
         return name.get();
     }
 
-    public void setName(String value) {
+    public final void setName(String value) {
         name.set(value);
     }
 
@@ -43,11 +43,11 @@ public class Tag {
         return name;
     }
 
-    public int getId() {
+    public final int getId() {
         return id.get();
     }
 
-    public void setId(int value) {
+    public final void setId(int value) {
         id.set(value);
     }
 

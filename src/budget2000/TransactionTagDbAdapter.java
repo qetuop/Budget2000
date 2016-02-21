@@ -16,15 +16,15 @@ import java.util.logging.Level;
  *
  * @author brian
  */
-public class TagDbAdapter extends AbstractDbAdapter {
+public class TransactionTagDbAdapter extends AbstractDbAdapter {
     
-    public TagDbAdapter() {
+    public TransactionTagDbAdapter() {
         super();
         
         THIS_TABLE = TABLE_TAG;
     }
     
-    public int createTag(Tag tag) {
+    public int createTransactionTag(Transaction transaction, Tag tag) {
         Statement stmt = null;
         int generatedKey = 0;
 
@@ -32,9 +32,9 @@ public class TagDbAdapter extends AbstractDbAdapter {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             
-            String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s');",
-                    TABLE_ACCOUNT, COLUMN_TAG_NAME,
-                    tag.getName() );
+            String sql = String.format("INSERT INTO %s (%s, %s) VALUES (%d %d);",
+                    THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, COLUMN_TRANSACTION_TAG_TAG_ID,
+                    transaction.getId(), tag.getId());
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
@@ -56,16 +56,17 @@ public class TagDbAdapter extends AbstractDbAdapter {
 
     } // createUser
     
-    private Tag cursorToObject(ResultSet rs) {
-        Tag x = null;
+    private TransactionTag cursorToObject(ResultSet rs) {
+        TransactionTag x = null;
 
         try {
             if (rs != null) {
                 
                 int id = rs.getInt(COLUMN_ID);
-                String name = rs.getString(COLUMN_TAG_NAME);
+                int transactionId = rs.getInt(COLUMN_TRANSACTION_TAG_TRANSACTION_ID);
+                int tagId = rs.getInt(COLUMN_TRANSACTION_TAG_TAG_ID);
                 
-                x = new Tag(id, name);
+                x = new TransactionTag(id, transactionId, tagId);
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
@@ -76,19 +77,19 @@ public class TagDbAdapter extends AbstractDbAdapter {
     } // cursorToUser
     
     // READ one - id
-    public Tag getTag(Integer _id) {
-        Tag tag = null;
+    public TransactionTag getTransactionTag(Integer _id) {
+        TransactionTag x = null;
 
         try {
             Statement stmt = c.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
-                    THIS_TABLE, COLUMN_ID, _id);
+                    TABLE_USER, COLUMN_ID, _id);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
 
             // should only be one. i hope. whats a better way
             if (rs.next()) {
-                tag = cursorToObject(rs);
+                x = cursorToObject(rs);
             }
 
             rs.close();
@@ -98,13 +99,13 @@ public class TagDbAdapter extends AbstractDbAdapter {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
         }
 
-        return tag;
+        return x;
 
     } // getUser
     
     // SELECT ALL
-    public ArrayList<Tag> getAll() {
-        ArrayList<Tag> objects = new ArrayList<>();
+    public ArrayList<TransactionTag> getAll() {
+        ArrayList<TransactionTag> objects = new ArrayList<>();
 
         try {
             Statement stmt = c.createStatement();
@@ -115,7 +116,7 @@ public class TagDbAdapter extends AbstractDbAdapter {
             // should only be one. i hope. whats a better way
             while (rs.next()) {
 
-                Tag x = cursorToObject(rs);
+                TransactionTag x = cursorToObject(rs);
                 if (x != null) {
                     objects.add(x);
                 }
