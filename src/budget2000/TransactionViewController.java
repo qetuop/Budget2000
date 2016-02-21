@@ -152,6 +152,10 @@ public class TransactionViewController implements Initializable {
     private TableColumn<Transaction, Long> TransactionDateCol;
     @FXML
     private TableColumn<Transaction, Double> TransactionAmountCol;
+    
+    // TODO: What do i use here
+    @FXML
+    private TableColumn<Tag, String> TransactionTagCol;
 
     final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 

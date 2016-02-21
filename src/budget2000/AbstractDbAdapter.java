@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  */
 public class AbstractDbAdapter {
 
-    private static Logger logger = Logger.getGlobal();
+    protected static Logger logger = Logger.getGlobal();
     
     protected static Connection c = null;
     private static Boolean databaseCreated = false;
@@ -30,7 +30,9 @@ public class AbstractDbAdapter {
     public static final String TABLE_INSTITUTION = "institution";
     public static final String TABLE_ACCOUNT = "account";
     public static final String TABLE_TRANSACTION = "transaction1";
-    public static final String TABLE_CATEGORIES = "categories";
+    public static final String TABLE_TAG = "tag";
+    public static final String TABLE_TRANSACTION_TAG = "transaction_tag";
+    
     protected String THIS_TABLE = null;
 
     // Common
@@ -55,8 +57,12 @@ public class AbstractDbAdapter {
     public static final String COLUMN_TRANSACTION_AMOUNT = "amount"; 
     public static final String COLUMN_TRANSACTION_ACCOUNT_ID = "account_id";
 
-    // Categories TABLE
-    public static final String COLUMN_CATEGORIES_PARENT_ID = "parent_id";
+    // Tag TABLE
+    public static final String COLUMN_TAG_NAME = "name";
+    
+    // Transaction_Tag TABLE
+    public static final String COLUMN_TRANSACTION_TAG_TRANSACTION_ID = "transaction_id";
+    public static final String COLUMN_TRANSACTION_TAG_TAG_ID = "tag_id";
 
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS "
             + TABLE_USER + "("
@@ -88,6 +94,19 @@ public class AbstractDbAdapter {
             + COLUMN_TRANSACTION_DISPLAY_NAME + " text, "
             + COLUMN_TRANSACTION_AMOUNT + " decimal(10,2) "             
             + ")";  // no trailing ';'
+    
+    private static final String CREATE_TABLE_TAG = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_TAG + "("
+            + COLUMN_ID + " integer not null primary key autoincrement, "
+            + COLUMN_TAG_NAME + " text "            
+            + ")";  // no trailing ';'
+    
+    private static final String CREATE_TABLE_TRANSACTION_TAG = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_TRANSACTION_TAG + "("
+            + COLUMN_ID + " integer not null primary key autoincrement, "
+            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
+            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer not null references " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "            
+            + ")";  // no trailing ';'
 
     public void createConnection() {
         // Create connection
@@ -112,9 +131,8 @@ public class AbstractDbAdapter {
         if (databaseCreated == true) {
             return;
         }
-        logger.info("Droping tables - REMOVE ME");
-        
-        dropTables();
+//        logger.info("Droping tables - REMOVE ME");        
+//        dropTables();
 
         // CREATE Table
         try {
@@ -124,6 +142,8 @@ public class AbstractDbAdapter {
                     + CREATE_TABLE_INSTITUTION + ";"
                     + CREATE_TABLE_ACCOUNT + ";"
                     + CREATE_TABLE_TRANSACTION + ";"
+                    + CREATE_TABLE_TAG + ";"
+                    + CREATE_TABLE_TRANSACTION_TAG + ";"
                     ;
 
             stmt.executeUpdate(sql);
@@ -163,7 +183,10 @@ public class AbstractDbAdapter {
                 TABLE_USER, 
                 TABLE_INSTITUTION, 
                 TABLE_ACCOUNT,
-                TABLE_TRANSACTION}) {
+                TABLE_TRANSACTION,
+                TABLE_TAG,
+                TABLE_TRANSACTION_TAG            
+            }) {
 
                 String sql = "DROP TABLE " + s;
                 stmt.executeUpdate(sql);
