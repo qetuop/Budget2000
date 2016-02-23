@@ -31,7 +31,7 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
             stmt = c.createStatement();
             
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s', '%s');",
-                    TABLE_INSTITUTION, COLUMN_INSTITUTION_NAME, COLUMN_INSTITUTION_USER_ID,
+                    THIS_TABLE, COLUMN_INSTITUTION_NAME, COLUMN_INSTITUTION_USER_ID,
                     inst.getInstitutionName(), inst.getUserId() );
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);

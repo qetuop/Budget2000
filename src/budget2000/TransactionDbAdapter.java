@@ -32,7 +32,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             stmt = c.createStatement();
 
             String sql = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (%d, '%s','%s', %f, %d);",
-                    TABLE_TRANSACTION,
+                    THIS_TABLE,
                     COLUMN_TRANSACTION_DATE,
                     COLUMN_TRANSACTION_NAME,      
                     COLUMN_TRANSACTION_DISPLAY_NAME,
@@ -118,7 +118,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
 
         try {
             Statement stmt = c.createStatement();
-            String sql = String.format("SELECT * FROM %s;", TABLE_TRANSACTION);
+            String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
 

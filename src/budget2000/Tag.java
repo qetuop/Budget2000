@@ -24,6 +24,12 @@ public class Tag {
         this.name = new SimpleStringProperty(this, "name", "");
     }
 
+    public Tag(String name) {
+        this();
+
+        this.setName(name);
+    }
+    
     public Tag(Integer id, String name) {
         this();
 

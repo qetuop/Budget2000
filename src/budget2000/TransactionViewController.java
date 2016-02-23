@@ -6,134 +6,33 @@
 package budget2000;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 /**
  * FXML Controller class
  *
  * @author Brian
  */
-class TransactionDialog extends Dialog {
-
-    GridPane grid = new GridPane();
-    DatePicker datePicker = new DatePicker();
-    TextField name = new TextField();
-    TextField displayName = new TextField();
-    TextField amount = new TextField();
-
-    // restrict amount text field to numbers
-    TextFormatter<String> amountFormatter = new TextFormatter<String>(change -> {
-        change.setText(change.getText().replaceAll("[\\D+]", ""));
-//            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
-//            change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{2})?$]", ""));
-        return change;
-    });
-
-    TransactionDialog(Transaction transaction) {
-        init();
-
-        //LocalDate locatDate = transaction.getDate();
-        LocalDate locatDate = LocalDate.ofEpochDay(transaction.getDate());
-        datePicker.setValue(locatDate);
-
-        name.setText(transaction.getName());
-        displayName.setText(transaction.getDisplayName());
-        amount.setText(Double.toString(transaction.getAmount()));
-    }
-
-    TransactionDialog() {
-        init();
-    }
-
-    private void init() {
-        // Set the button types.
-        getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        amount.setTextFormatter(amountFormatter);
-
-        name.setPromptText("Transaction Name");
-        displayName.setPromptText("Display Name");
-        amount.setPromptText("Transaction Amount");
-
-        datePicker.setValue(LocalDate.now());
-        amount.setText("0.0");
-
-        // Create the first and last labels and fields.        
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
-        grid.add(new Label("Transaction Date:"), 0, 0);
-        grid.add(datePicker, 1, 0);
-        grid.add(new Label("Transaction Name:"), 0, 1);
-        grid.add(name, 1, 1);
-        grid.add(new Label("Display Name:"), 0, 2);
-        grid.add(displayName, 1, 2);
-        grid.add(new Label("Transaction Amount:"), 0, 3);
-        grid.add(amount, 1, 3);
-
-        getDialogPane().setContent(grid);
-
-        // Convert the result to a Transaction when the ok button is clicked.
-        setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-
-                DecimalFormat decimalFormat = new DecimalFormat();
-                decimalFormat.setParseBigDecimal(true);
-                BigDecimal bigDecimal = BigDecimal.ZERO;
-                try {
-                    bigDecimal = (BigDecimal) decimalFormat.parse(amount.getText());
-                } catch (ParseException ex) {
-                    Logger.getLogger(TransactionViewController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                Transaction transaction = new Transaction();
-                transaction.setName(name.getText());
-                transaction.setDisplayName(displayName.getText());
-                transaction.setAmount(bigDecimal.doubleValue());
-                transaction.setDate(datePicker.getValue().toEpochDay());
-
-                return transaction;
-            }
-            return null;
-        });
-    }
-
-} // TransactionDialog
-
 public class TransactionViewController implements Initializable {
 
     private static final Logger logger = Logger.getGlobal();
@@ -323,22 +222,53 @@ public class TransactionViewController implements Initializable {
         dialog.setTitle("New Transaction");
         dialog.setHeaderText("<header text>");
 
-        Optional<Transaction> result = dialog.showAndWait();
+        //Optional<Pair<String, String>> result = dialog.showAndWait();
+        //Optional<Pair<Transaction,ArrayList<Tag>>> result = dialog.showAndWait();
+        Optional<Pair<Transaction,ArrayList<String>>> result = dialog.showAndWait();
 
         // Add to data store and set it as table selection
-        result.ifPresent(newTransaction -> {
-            logger.info("newTrans " + newTransaction);
-
+        result.ifPresent(resultPair -> {
+            logger.info("newTrans " + resultPair);
+ System.out.println("transaction=" + resultPair.getKey() + ", tag=" + resultPair.getValue());
+ 
+            Transaction newTransaction = resultPair.getKey();
+            ArrayList<String> tags = resultPair.getValue();
+            
             newTransaction.setAccountId(budgetData.getSelectedAccount());
 
             int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
             newTransaction.setId(transactionId);
+            
+            createTags(newTransaction, tags);
+            
             transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
 
             transactionTableView.getSelectionModel().select(newTransaction);
         });
 
     } // addTransaction
+    
+    private void createTags(Transaction transaction, ArrayList<String> tags){
+        TransactionTagDbAdapter ttDbAdapter = new TransactionTagDbAdapter();
+        ttDbAdapter.createConnection();
+        ttDbAdapter.createDatabase();
+        
+        TagDbAdapter tagDbAdapter = new TagDbAdapter();
+        tagDbAdapter.createConnection();
+        tagDbAdapter.createDatabase();
+                
+        for (String stringTag : tags) {
+           Tag tag = new Tag(stringTag);
+           
+           // verfiy doesn't already exist or will DB not accept dupes?
+           
+           int tagId = tagDbAdapter.createTag(tag);
+           
+           TransactionTag tt = new TransactionTag(transaction.getId(), tagId);
+           
+           int ttId = ttDbAdapter.createTransactionTag(tt);
+        }
+    }
 
     private void update() {
         Integer accountId = budgetData.getSelectedAccount();

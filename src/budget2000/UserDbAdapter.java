@@ -32,7 +32,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
             stmt = c.createStatement();
 
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s', '%s');",
-                    TABLE_USER, COLUMN_USER_FIRST_NAME, COLUMN_USER_LAST_NAME,
+                    THIS_TABLE, COLUMN_USER_FIRST_NAME, COLUMN_USER_LAST_NAME,
                     user.getFirstName(), user.getLastName());
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -81,7 +81,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
         try {
             Statement stmt = c.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
-                    TABLE_USER, COLUMN_ID, _id);
+                    THIS_TABLE, COLUMN_ID, _id);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
 
@@ -107,7 +107,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
 
         try {
             Statement stmt = c.createStatement();
-            String sql = String.format("SELECT * FROM %s;", TABLE_USER);
+            String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
 
@@ -134,7 +134,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
     public void update(User user) {
         try {
             String sql = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = %d;",
-                    TABLE_USER, COLUMN_USER_FIRST_NAME, COLUMN_USER_LAST_NAME, COLUMN_ID, user.getId());
+                    THIS_TABLE, COLUMN_USER_FIRST_NAME, COLUMN_USER_LAST_NAME, COLUMN_ID, user.getId());
             PreparedStatement update = c.prepareStatement(sql);
 
             update.setString(1, user.getFirstName());

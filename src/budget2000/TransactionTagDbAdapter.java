@@ -21,10 +21,10 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
     public TransactionTagDbAdapter() {
         super();
         
-        THIS_TABLE = TABLE_TAG;
+        THIS_TABLE = TABLE_TRANSACTION_TAG;
     }
     
-    public int createTransactionTag(Transaction transaction, Tag tag) {
+    public int createTransactionTag(TransactionTag transactionTag) {
         Statement stmt = null;
         int generatedKey = 0;
 
@@ -32,9 +32,9 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             
-            String sql = String.format("INSERT INTO %s (%s, %s) VALUES (%d %d);",
+            String sql = String.format("INSERT INTO %s (%s, %s) VALUES (%d, %d);",
                     THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, COLUMN_TRANSACTION_TAG_TAG_ID,
-                    transaction.getId(), tag.getId());
+                    transactionTag.getTransactionId(), transactionTag.getTagId());
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
@@ -110,6 +110,36 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         try {
             Statement stmt = c.createStatement();
             String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                TransactionTag x = cursorToObject(rs);
+                if (x != null) {
+                    objects.add(x);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return objects;
+
+    } // getUsers
+    
+    // SELECT ALL  for a transaction id
+    public ArrayList<TransactionTag> getAllForTransaction(Integer _id) {
+        ArrayList<TransactionTag> objects = new ArrayList<>();
+
+        try {
+            Statement stmt = c.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, _id);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
 

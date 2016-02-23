@@ -34,6 +34,14 @@ public class TransactionTag {
         this.setTagId(tagId);
 
     }
+    
+    public TransactionTag(Integer transactionId, Integer tagId) {
+        this();
+
+        this.setTransactionId(transactionId);
+        this.setTagId(tagId);
+
+    }
 
     public final int getId() {
         return id.get();

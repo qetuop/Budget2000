@@ -32,8 +32,8 @@ public class TagDbAdapter extends AbstractDbAdapter {
             c.setAutoCommit(false);
             stmt = c.createStatement();
             
-            String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s');",
-                    TABLE_ACCOUNT, COLUMN_TAG_NAME,
+            String sql = String.format("INSERT INTO %s (%s) VALUES ('%s');",
+                    THIS_TABLE, COLUMN_TAG_NAME,
                     tag.getName() );
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
