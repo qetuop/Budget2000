@@ -51,7 +51,7 @@ public class TransactionViewController implements Initializable {
     private TableColumn<Transaction, Long> TransactionDateCol;
     @FXML
     private TableColumn<Transaction, Double> TransactionAmountCol;
-    
+
     // TODO: What do i use here
     @FXML
     private TableColumn<Tag, String> TransactionTagCol;
@@ -161,14 +161,14 @@ public class TransactionViewController implements Initializable {
         if (list != null) {
             for (File file : list) {
                 Importer i = new Importer();
-                
+
                 ArrayList<Transaction> newTransList = i.readData(file);
                 newTransList.stream().forEach((t) -> {
-                    
+
                     t.setAccountId(budgetData.getSelectedAccount());
                     int transactionId = mTransactionDbAdapter.createTransaction(t);
                     t.setId(transactionId);
-                    
+
                     transactionList.add(t); // need to add to DB? or have list rebuild from DB?
 
                     transactionTableView.getSelectionModel().select(t);
@@ -224,49 +224,48 @@ public class TransactionViewController implements Initializable {
 
         //Optional<Pair<String, String>> result = dialog.showAndWait();
         //Optional<Pair<Transaction,ArrayList<Tag>>> result = dialog.showAndWait();
-        Optional<Pair<Transaction,ArrayList<String>>> result = dialog.showAndWait();
+        Optional<Pair<Transaction, ArrayList<String>>> result = dialog.showAndWait();
 
         // Add to data store and set it as table selection
         result.ifPresent(resultPair -> {
             logger.info("newTrans " + resultPair);
- System.out.println("transaction=" + resultPair.getKey() + ", tag=" + resultPair.getValue());
- 
+            logger.info("transaction=" + resultPair.getKey() + ", tag=" + resultPair.getValue());
+
             Transaction newTransaction = resultPair.getKey();
             ArrayList<String> tags = resultPair.getValue();
-            
+
             newTransaction.setAccountId(budgetData.getSelectedAccount());
 
             int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
             newTransaction.setId(transactionId);
-            
+
             createTags(newTransaction, tags);
-            
+
             transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
 
             transactionTableView.getSelectionModel().select(newTransaction);
         });
 
     } // addTransaction
-    
-    private void createTags(Transaction transaction, ArrayList<String> tags){
+
+    private void createTags(Transaction transaction, ArrayList<String> tags) {
         TransactionTagDbAdapter ttDbAdapter = new TransactionTagDbAdapter();
         ttDbAdapter.createConnection();
         ttDbAdapter.createDatabase();
-        
+
         TagDbAdapter tagDbAdapter = new TagDbAdapter();
         tagDbAdapter.createConnection();
         tagDbAdapter.createDatabase();
-                
+
         for (String stringTag : tags) {
-           Tag tag = new Tag(stringTag);
-           
-           // verfiy doesn't already exist or will DB not accept dupes?
-           
-           int tagId = tagDbAdapter.createTag(tag);
-           
-           TransactionTag tt = new TransactionTag(transaction.getId(), tagId);
-           
-           int ttId = ttDbAdapter.createTransactionTag(tt);
+            Tag tag = new Tag(stringTag);
+
+            // verfiy doesn't already exist or will DB not accept dupes?
+            int tagId = tagDbAdapter.createTag(tag);
+
+            TransactionTag tt = new TransactionTag(transaction.getId(), tagId);
+
+            int ttId = ttDbAdapter.createTransactionTag(tt);
         }
     }
 

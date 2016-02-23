@@ -104,8 +104,8 @@ public class AbstractDbAdapter {
     private static final String CREATE_TABLE_TRANSACTION_TAG = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION_TAG + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
-            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + "), "
-            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer not null references " + TABLE_TAG + "(" + COLUMN_ID + ") "            
+            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
+            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer not null references " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "            
             + ")";  // no trailing ';'
 
     public void createConnection() {
