@@ -145,8 +145,8 @@ public class UserViewController implements Initializable {
         logger.info("");
 
         mUserDbAdapter = new UserDbAdapter();
-        mUserDbAdapter.createConnection();
-        mUserDbAdapter.createDatabase();
+        //mUserDbAdapter.createConnection();
+        //mUserDbAdapter.createDatabase();
         //userList.setAll(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
 
         // only enable if user selected

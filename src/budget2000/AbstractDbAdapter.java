@@ -108,6 +108,12 @@ public class AbstractDbAdapter {
             + COLUMN_TRANSACTION_TAG_TAG_ID + " integer not null references " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "            
             + ")";  // no trailing ';'
 
+    // TODO: is this a bad idea?
+    public AbstractDbAdapter() {
+        createConnection();
+        createDatabase();
+    }
+    
     public void createConnection() {
         // Create connection
         if (c != null) {
@@ -131,8 +137,8 @@ public class AbstractDbAdapter {
         if (databaseCreated == true) {
             return;
         }
-        logger.info("Droping tables - REMOVE ME");        
-        dropTables();
+//        logger.info("Droping tables - REMOVE ME");        
+//        dropTables();
 
         // CREATE Table
         try {

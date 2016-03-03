@@ -56,23 +56,6 @@ public class Transaction implements Externalizable {
         this.setDate(date);
         this.setAmount(amount);
     }
-    
-//    public Transaction(Integer id, Long date, String description, Integer accountId) {
-//        this();
-//
-//        this.setId(id);
-//        this.setName(description);
-//        this.setAccountId(accountId);
-//        this.setDate(date);
-//    }
-
-//    public Transaction(Long date, String description, Integer accountId) {
-//        this();
-//
-//        this.setDescription(description);
-//        this.setAccountId(accountId);
-//        this.setDate(date);
-//    }
 
     public final Integer getId() {
         return id.get();

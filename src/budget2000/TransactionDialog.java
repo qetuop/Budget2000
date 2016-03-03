@@ -59,12 +59,12 @@ public class TransactionDialog extends Dialog {
         amount.setText(Double.toString(transaction.getAmount()));
 
         TransactionTagDbAdapter ttDbAdapter = new TransactionTagDbAdapter();
-        ttDbAdapter.createConnection();
-        ttDbAdapter.createDatabase();
+        //ttDbAdapter.createConnection();
+        //ttDbAdapter.createDatabase();
 
         TagDbAdapter tagDbAdapter = new TagDbAdapter();
-        tagDbAdapter.createConnection();
-        tagDbAdapter.createDatabase();
+        //tagDbAdapter.createConnection();
+        //tagDbAdapter.createDatabase();
 
         ArrayList<TransactionTag> objects = new ArrayList<>();
         objects = ttDbAdapter.getAllForTransaction(transaction.getId());

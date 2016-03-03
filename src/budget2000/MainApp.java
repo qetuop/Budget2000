@@ -70,8 +70,8 @@ public class MainApp extends Application {
         System.out.println("--------USER---------");
 
         UserDbAdapter mUserDbAdapter = new UserDbAdapter();
-        mUserDbAdapter.createConnection();
-        mUserDbAdapter.createDatabase();
+        //mUserDbAdapter.createConnection();
+        //mUserDbAdapter.createDatabase();
 
         User user = new User("Bob", "Smith");
         int userId = mUserDbAdapter.createUser(user);

@@ -101,8 +101,8 @@ public class AccountViewController implements Initializable {
         logger.info("");
 
         mAccountDbAdapter = new AccountDbAdapter();
-        mAccountDbAdapter.createConnection();
-        mAccountDbAdapter.createDatabase();
+        //mAccountDbAdapter.createConnection();
+        //mAccountDbAdapter.createDatabase();
 
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
