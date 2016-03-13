@@ -131,15 +131,25 @@ public class Transaction implements Externalizable {
     
     
 
+//    @Override
+//    public String toString() {
+//        //DateFormat df = DateFormat.getDateInstance();
+//        //df.setTimeZone(TimeZone.getTimeZone("EST"));
+//        //String d = df.format(new Date(getDate()));
+//        LocalDate localDate = LocalDate.ofEpochDay(getDate());
+//                
+//        return String.format("Transaction{ %d %d %d (%s) \"%s\" \"%s\" }", 
+//                this.getId(), getAccountId(), getDate(), localDate, getName(), getDisplayName());
+//    }
+    
+    
+
     @Override
     public String toString() {
-        //DateFormat df = DateFormat.getDateInstance();
-        //df.setTimeZone(TimeZone.getTimeZone("EST"));
-        //String d = df.format(new Date(getDate()));
-        LocalDate localDate = LocalDate.ofEpochDay(getDate());
-                
-        return String.format("Transaction{ %d %d %d (%s) \"%s\" \"%s\" }", 
-                this.getId(), getAccountId(), getDate(), localDate, getName(), getDisplayName());
+        return "Transaction{" + "id=" + id.get() + ", name=" + name.get() 
+                + ", displayName=" + displayName.get() + ", accountId=" 
+                + accountId.get() + ", date=" + date.get() + ", amount=" + amount.get() + '}';
+        //out.writeObject(getName());
     }
 
     @Override

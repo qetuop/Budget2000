@@ -50,6 +50,7 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
         }
         
+        inst.setId(generatedKey);
         return generatedKey;
 
     } // createUser

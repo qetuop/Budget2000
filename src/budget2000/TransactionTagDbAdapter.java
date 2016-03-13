@@ -51,7 +51,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
         }
-        
+        transactionTag.setId(generatedKey);
         return generatedKey;
 
     } // createUser

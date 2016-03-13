@@ -110,11 +110,13 @@ public class AbstractDbAdapter {
 
     // TODO: is this a bad idea?
     public AbstractDbAdapter() {
+        logger.info("");
         createConnection();
         createDatabase();
     }
     
     public void createConnection() {
+        logger.info("");
         // Create connection
         if (c != null) {
             return;
@@ -137,8 +139,8 @@ public class AbstractDbAdapter {
         if (databaseCreated == true) {
             return;
         }
-//        logger.info("Droping tables - REMOVE ME");        
-//        dropTables();
+        logger.info("Droping tables - REMOVE ME");        
+        dropTables();
 
         // CREATE Table
         try {
@@ -160,7 +162,8 @@ public class AbstractDbAdapter {
             databaseCreated = true;
             
             // necessary for stuff to work right - cascade
-            stmt.execute ("PRAGMA foreign_keys = ON;");
+            stmt.execute("PRAGMA foreign_keys = ON;");
+            stmt.close();
             
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ":createDatabase: " + e);

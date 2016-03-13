@@ -50,6 +50,7 @@ public class AccountDbAdapter extends AbstractDbAdapter {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
         }
         
+        account.setId(generatedKey);
         return generatedKey;
 
     } // createUser

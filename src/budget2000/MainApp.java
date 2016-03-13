@@ -25,7 +25,6 @@ import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-        
 /**
  *
  * @author brian
@@ -45,6 +44,11 @@ public class MainApp extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(MainApp.class.getResource("MainAppView.fxml"));
         root = loader.load();
+
+        // Foreign key constraint error workaround, why doe this fix it?!?
+        AbstractDbAdapter dbAdapter = new AbstractDbAdapter();
+        dbAdapter.close();
+        dbAdapter.createConnection();
 
         // enable all children to get this class (and thus the userData)
         mvc = loader.getController();
@@ -110,8 +114,8 @@ public class MainApp extends Application {
         File file = fileChooser.showOpenDialog(mPrimaryStage);
         if (file != null) {
             System.out.println("file " + file.getName());
-            
-            if (file.getName().compareTo(AbstractDbAdapter.DATABASE_NAME) == 0 ) {
+
+            if (file.getName().compareTo(AbstractDbAdapter.DATABASE_NAME) == 0) {
                 return rv;
             }
 
@@ -120,16 +124,16 @@ public class MainApp extends Application {
             if (currentDB.exists()) {
                 currentDB.renameTo(new File(AbstractDbAdapter.DATABASE_NAME + ".bak"));
             }
-            
+
             currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
-            
+
             try {
                 // copy new DB to correct name
                 Files.copy(file.toPath(), currentDB.toPath(), REPLACE_EXISTING);
             } catch (IOException ex) {
                 Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             AbstractDbAdapter dbAdapter = new AbstractDbAdapter();
             dbAdapter.close();
             dbAdapter.createConnection();
@@ -152,7 +156,7 @@ public class MainApp extends Application {
                 new FileChooser.ExtensionFilter("All Files", "*.*"));
 
         File file = fileChooser.showSaveDialog(mPrimaryStage);
-        
+
 //        if (file != null) {
 //            System.out.println("w?hat do i do: " +file.getName());
 //            File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
@@ -164,7 +168,6 @@ public class MainApp extends Application {
 //                Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
 //            }
 //        }
-
         //String fileName = "test.ser";
     }
 //

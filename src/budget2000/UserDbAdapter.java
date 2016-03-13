@@ -51,6 +51,7 @@ public class UserDbAdapter extends AbstractDbAdapter {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
 
+        user.setId(generatedKey);
         return generatedKey;
 
     } // createUser

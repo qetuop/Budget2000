@@ -60,6 +60,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             System.err.println(this.getClass().getName() + ":createTransaction: " + e);
         }
 
+        transaction.setId(generatedKey);
         return generatedKey;
 
     } // create

@@ -38,9 +38,8 @@ public class TagDbAdapter extends AbstractDbAdapter {
 
             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
-
             ResultSet rs = ps.getGeneratedKeys();
-
+                           
             if (rs.next()) {
                 generatedKey = rs.getInt(1); // long or int?
             }
@@ -52,6 +51,7 @@ public class TagDbAdapter extends AbstractDbAdapter {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
         }
         
+        tag.setId(generatedKey);
         return generatedKey;
 
     } // createUser
