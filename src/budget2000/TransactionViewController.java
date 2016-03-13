@@ -14,22 +14,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TreeTableColumn.CellDataFeatures;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.Pair;
 
 /**
@@ -56,7 +53,7 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableColumn<TransactionWrapper, String> TransactionDisplayNameCol;
     @FXML
-    private TableColumn<TransactionWrapper, Number> TransactionDateCol;
+    private TableColumn<TransactionWrapper, String> TransactionDateCol;
     @FXML
     private TableColumn<TransactionWrapper, Number> TransactionAmountCol;
     // TODO: What do i use here
@@ -79,30 +76,25 @@ public class TransactionViewController implements Initializable {
         TransactionDisplayNameCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> (ObservableValue<String>) p.getValue().getTransaction().getDisplayNameProperty());
 
-        TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
-                -> (ObservableValue<Number>) p.getValue().getTransaction().getDateProperty());
-
+//        TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
+//                -> (ObservableValue<Number>) p.getValue().getTransaction().getDateProperty());
         TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
                 -> (ObservableValue<Number>) p.getValue().getTransaction().getAmmountProperty());
 
         TransactionTagCol.setCellValueFactory(new PropertyValueFactory<TransactionWrapper, String>("tagList"));
 
-//        TransactionDateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
-//        TransactionNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
-//        TransactionDisplayNameCol.setCellValueFactory(new PropertyValueFactory<>("DisplayName"));
-//        TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
-        transactionTableView.setItems(transactionWrapperList);
-
-        // propagate transactions selections
-        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection(newValue.getTransaction());
+        TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
+                -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            property.setValue(dateFormat.format(LocalDate.ofEpochDay(p.getValue().getTransaction().getDateProperty().longValue())));
+            return property;
         });
-//
+
 //        // Custom rendering of the table cell.
 //        TransactionDateCol.setCellFactory(column -> {
-//            return new TableCell<Transaction, Long>() {
+//            return new TableCell<TransactionWrapper, Number>() {
 //                @Override
-//                protected void updateItem(Long item, boolean empty) {
+//                protected void updateItem(Number item, boolean empty) {
 //                    super.updateItem(item, empty);
 //
 //                    if (item == null || empty) {
@@ -110,27 +102,18 @@ public class TransactionViewController implements Initializable {
 //                        setStyle("");
 //                    } else {
 //                        // Format date.
-//                        setText(dateFormat.format(LocalDate.ofEpochDay(item)));
+//                        setText(dateFormat.format(LocalDate.ofEpochDay(item.longValue())));
 //                    }
 //                }
 //            };
 //        });
+        transactionTableView.setItems(transactionWrapperList);
 
-//        TransactionTagCol.setCellFactory(column -> {
-//            return new TableCell<Tag, String>() {
-//                @Override
-//                protected void updateItem(String item, boolean empty) {
-//                    super.updateItem(item, empty);
-//
-//                    if (item == null || empty) {
-//                        System.out.println("whaa");
-//                        
-//                    } else {
-//                        System.out.println("huh");
-//                    }
-//                }
-//            };
-//        });
+        // propagate transactions selections
+        transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            tableSelection(newValue.getTransaction());
+        });
+
     } // initialize
 
     void setBudgetData(BudgetData budgetData) {
@@ -282,19 +265,27 @@ public class TransactionViewController implements Initializable {
 
     } // addTransaction
 
+    /**
+     * This will take a Transaction object and list of strings and create
+     * TransactionTag entries and return a list of Tag objects
+     *
+     * @param transaction
+     * @param stringTags
+     * @return
+     */
     private ArrayList<Tag> createTransactionTags(Transaction transaction, ArrayList<String> stringTags) {
         ArrayList<Tag> tags = new ArrayList<>();
-        
+
         for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
             tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
 
             tags.add(tag);
-            
+
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
         }
-        
+
         return tags;
     }
 
@@ -318,7 +309,7 @@ public class TransactionViewController implements Initializable {
 
             // get Tags
             ArrayList<Tag> tags = new ArrayList<>();
-            
+
             // create TransactionWrapper
             for (TransactionTag tt : ttList) {
 
