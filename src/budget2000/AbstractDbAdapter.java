@@ -139,8 +139,8 @@ public class AbstractDbAdapter {
         if (databaseCreated == true) {
             return;
         }
-        logger.info("Droping tables - REMOVE ME");        
-        dropTables();
+//        logger.info("Droping tables - REMOVE ME");        
+//        dropTables();
 
         // CREATE Table
         try {

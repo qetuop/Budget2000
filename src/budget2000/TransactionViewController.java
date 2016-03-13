@@ -42,11 +42,11 @@ public class TransactionViewController implements Initializable {
     private static final Logger logger = Logger.getGlobal();
 
     private BudgetData budgetData;
-    
+
     private TransactionDbAdapter mTransactionDbAdapter;
     private TransactionTagDbAdapter ttDbAdapter;
     private TagDbAdapter tagDbAdapter;
-        
+
     private ObservableList<TransactionWrapper> transactionWrapperList = FXCollections.observableArrayList();
 
     @FXML
@@ -56,9 +56,9 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableColumn<TransactionWrapper, String> TransactionDisplayNameCol;
     @FXML
-    private TableColumn<TransactionWrapper, Long> TransactionDateCol;
+    private TableColumn<TransactionWrapper, Number> TransactionDateCol;
     @FXML
-    private TableColumn<TransactionWrapper, Double> TransactionAmountCol;
+    private TableColumn<TransactionWrapper, Number> TransactionAmountCol;
     // TODO: What do i use here
     @FXML
     //private TableColumn<String[], String> TransactionTagCol;
@@ -75,14 +75,22 @@ public class TransactionViewController implements Initializable {
 
         TransactionNameCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> (ObservableValue<String>) p.getValue().getTransaction().getNameProperty());
-        //TransactionTagCol.setCellValueFactory(new PropertyValueFactory<TransactionWrapper, String>("tagList"));
-        /*
-        TransactionDateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
-        TransactionNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        TransactionDisplayNameCol.setCellValueFactory(new PropertyValueFactory<>("DisplayName"));
-        TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
-        //TransactionTagCol.setCellValueFactory(new PropertyValueFactory<>("Tag"));
-         */
+
+        TransactionDisplayNameCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
+                -> (ObservableValue<String>) p.getValue().getTransaction().getDisplayNameProperty());
+
+        TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
+                -> (ObservableValue<Number>) p.getValue().getTransaction().getDateProperty());
+
+        TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
+                -> (ObservableValue<Number>) p.getValue().getTransaction().getAmmountProperty());
+
+        TransactionTagCol.setCellValueFactory(new PropertyValueFactory<TransactionWrapper, String>("tagList"));
+
+//        TransactionDateCol.setCellValueFactory(new PropertyValueFactory<>("Date"));
+//        TransactionNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+//        TransactionDisplayNameCol.setCellValueFactory(new PropertyValueFactory<>("DisplayName"));
+//        TransactionAmountCol.setCellValueFactory(new PropertyValueFactory<>("Amount"));
         transactionTableView.setItems(transactionWrapperList);
 
         // propagate transactions selections
@@ -142,8 +150,6 @@ public class TransactionViewController implements Initializable {
         mTransactionDbAdapter = new TransactionDbAdapter();
         ttDbAdapter = new TransactionTagDbAdapter();
         tagDbAdapter = new TagDbAdapter();
-        //mTransactionDbAdapter.createConnection();
-        //mTransactionDbAdapter.createDatabase();
 
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
@@ -276,34 +282,51 @@ public class TransactionViewController implements Initializable {
 
     } // addTransaction
 
-    private void createTags(Transaction transaction, ArrayList<String> tags) {        
+    private void createTags(Transaction transaction, ArrayList<String> tags) {
 
         for (String stringTag : tags) {
-            Tag tag = new Tag(stringTag);           
+            Tag tag = new Tag(stringTag);
             tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
-            
+
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
         }
     }
 
-    public ArrayList<Tag> getTags() {
-        Integer transactionId = budgetData.getSelectedTransaction();
-        TagDbAdapter tagDbAdapter = new TagDbAdapter();
-
-        ArrayList<Tag> tags = tagDbAdapter.getAll();
-        return tags;
-    }
-
+//    public ArrayList<Tag> getTags(Integer transactionId) {
+//        //Integer transactionId = budgetData.getSelectedTransaction();
+//        TagDbAdapter tagDbAdapter = new TagDbAdapter();
+//
+//        ArrayList<Tag> tags = tagDbAdapter.getAll();
+//        return tags;
+//    }
     private void update() {
         Integer accountId = budgetData.getSelectedAccount();
 
-        //transactionList.setAll(FXCollections.observableArrayList(mTransactionDbAdapter.getAllForAccount(accountId)));
-        
         // get transactions
-        // get tags
-        // merge together
-        
+        ArrayList<Transaction> transactions = mTransactionDbAdapter.getAllForAccount(accountId);
+
+        for (Transaction t : transactions) {
+
+            // get TransactionTags
+            ArrayList<TransactionTag> ttList = ttDbAdapter.getAllForTransaction(t.getId());
+
+            // get Tags
+            ArrayList<Tag> tags = new ArrayList<>();
+            
+            for (TransactionTag tt : ttList) {
+
+                tags.add(tagDbAdapter.getTag(tt.getTagId()));
+                
+                // merge together
+                TransactionWrapper tw = new TransactionWrapper();
+                tw.setTransaction(t);
+                tw.setTags(FXCollections.observableArrayList(tags));
+
+                transactionWrapperList.add(tw);
+            }
+        }
+
         transactionTableView.getSelectionModel().selectFirst();
     }
 

@@ -27,7 +27,7 @@ public class TransactionWrapper {
     public String getTagList() {
         StringBuilder sb = new StringBuilder();
         for (Tag tag : tags ){
-            sb.append(tag.getName());
+            sb.append(tag.getName()).append(" ");
         }
         return sb.toString();
         
