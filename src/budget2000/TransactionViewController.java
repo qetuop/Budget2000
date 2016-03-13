@@ -262,14 +262,14 @@ public class TransactionViewController implements Initializable {
             logger.info("newTrans " + resultPair);
 
             Transaction newTransaction = resultPair.getKey();
-            ArrayList<String> tags = resultPair.getValue();
+            ArrayList<String> stringTags = resultPair.getValue();
 
             newTransaction.setAccountId(budgetData.getSelectedAccount());
 
             // need to check for success and handle failure
             int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
 
-            createTags(newTransaction, tags);
+            ArrayList<Tag> tags = createTransactionTags(newTransaction, stringTags);
 
             TransactionWrapper tw = new TransactionWrapper();
             tw.setTransaction(newTransaction);
@@ -282,15 +282,20 @@ public class TransactionViewController implements Initializable {
 
     } // addTransaction
 
-    private void createTags(Transaction transaction, ArrayList<String> tags) {
-
-        for (String stringTag : tags) {
+    private ArrayList<Tag> createTransactionTags(Transaction transaction, ArrayList<String> stringTags) {
+        ArrayList<Tag> tags = new ArrayList<>();
+        
+        for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
             tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
 
+            tags.add(tag);
+            
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
         }
+        
+        return tags;
     }
 
 //    public ArrayList<Tag> getTags(Integer transactionId) {
@@ -314,11 +319,11 @@ public class TransactionViewController implements Initializable {
             // get Tags
             ArrayList<Tag> tags = new ArrayList<>();
             
+            // create TransactionWrapper
             for (TransactionTag tt : ttList) {
 
                 tags.add(tagDbAdapter.getTag(tt.getTagId()));
-                
-                // merge together
+
                 TransactionWrapper tw = new TransactionWrapper();
                 tw.setTransaction(t);
                 tw.setTags(FXCollections.observableArrayList(tags));

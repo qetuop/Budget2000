@@ -1,0 +1,5 @@
+# Build
+ant
+
+# Run
+java -jar dist/Budget2000.jar
