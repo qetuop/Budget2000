@@ -7,6 +7,7 @@ package budget2000;
 
 import java.io.File;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -55,7 +57,7 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableColumn<TransactionWrapper, String> TransactionDateCol;
     @FXML
-    private TableColumn<TransactionWrapper, Number> TransactionAmountCol;
+    private TableColumn<TransactionWrapper, String> TransactionAmountCol;
     // TODO: What do i use here
     @FXML
     //private TableColumn<String[], String> TransactionTagCol;
@@ -76,13 +78,20 @@ public class TransactionViewController implements Initializable {
         TransactionDisplayNameCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> (ObservableValue<String>) p.getValue().getTransaction().getDisplayNameProperty());
 
-//        TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
-//                -> (ObservableValue<Number>) p.getValue().getTransaction().getDateProperty());
-        TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
-                -> (ObservableValue<Number>) p.getValue().getTransaction().getAmmountProperty());
+//        TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
+//                -> (ObservableValue<Number>) p.getValue().getTransaction().getAmmountProperty());
+
+        TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
+                -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            NumberFormat numberFormat = NumberFormat.getInstance();
+            property.setValue(numberFormat.format(p.getValue().getTransaction().getAmmountProperty().doubleValue()));
+            return property;
+        });
 
         TransactionTagCol.setCellValueFactory(new PropertyValueFactory<TransactionWrapper, String>("tagList"));
 
+        // TODO: please make this right
         TransactionDateCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> {
             SimpleStringProperty property = new SimpleStringProperty();

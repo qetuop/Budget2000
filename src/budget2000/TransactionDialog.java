@@ -7,10 +7,12 @@ package budget2000;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.geometry.Insets;
@@ -40,9 +42,10 @@ public class TransactionDialog extends Dialog {
     ArrayList<String> tags = new ArrayList<>();
 
     // restrict amount text field to numbers
+    
     TextFormatter<String> amountFormatter = new TextFormatter<String>(change -> {
-        change.setText(change.getText().replaceAll("[\\D+]", ""));
-//            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
+ //       change.setText(change.getText().replaceAll("[\\D+]", "")); // doesn't work - 
+            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
 //            change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{2})?$]", ""));
         return change;
     });
@@ -86,7 +89,7 @@ public class TransactionDialog extends Dialog {
     private void init() {
         // Set the button types.
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
+//NumberFormat amountFormatter = NumberFormat.getNumberInstance();
         amount.setTextFormatter(amountFormatter);
 
         name.setPromptText("Transaction Name");
