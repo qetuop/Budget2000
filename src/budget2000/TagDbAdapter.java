@@ -5,12 +5,12 @@
  */
 package budget2000;
 
-import static budget2000.AbstractDbAdapter.c;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import static budget2000.AbstractDbAdapter.conn;
 
 /**
  *
@@ -29,14 +29,14 @@ public class TagDbAdapter extends AbstractDbAdapter {
         int generatedKey = 0;
 
         try {
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
+            conn.setAutoCommit(false);
+            stmt = conn.createStatement();
             
             String sql = String.format("INSERT INTO %s (%s) VALUES ('%s');",
                     THIS_TABLE, COLUMN_TAG_NAME,
                     tag.getName() );
-
-            PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+logger.info(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
             ResultSet rs = ps.getGeneratedKeys();
                            
@@ -45,7 +45,7 @@ public class TagDbAdapter extends AbstractDbAdapter {
             }
 
             stmt.close();
-            c.commit();
+            conn.commit();
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
@@ -80,7 +80,7 @@ public class TagDbAdapter extends AbstractDbAdapter {
         Tag tag = null;
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
                     THIS_TABLE, COLUMN_ID, _id);
 
@@ -107,7 +107,7 @@ public class TagDbAdapter extends AbstractDbAdapter {
         ArrayList<Tag> objects = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery

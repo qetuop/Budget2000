@@ -80,7 +80,6 @@ public class TransactionViewController implements Initializable {
 
 //        TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, Number> p)
 //                -> (ObservableValue<Number>) p.getValue().getTransaction().getAmmountProperty());
-
         TransactionAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> {
             SimpleStringProperty property = new SimpleStringProperty();
@@ -221,20 +220,61 @@ public class TransactionViewController implements Initializable {
         dialog.setTitle("Edit Transaction");
         dialog.setHeaderText("<header text>");
 
-        Optional<Transaction> result = dialog.showAndWait();
+        Optional<Pair<Transaction, ArrayList<String>>> result = dialog.showAndWait();
 
         // Add to data store and set it as table selection
-        result.ifPresent(newTransaction -> {
-            logger.info("edit Trans " + newTransaction);
+        result.ifPresent(resultPair -> {
+            logger.info("Edit Transaction: " + resultPair);
 
-//            newTransaction.setAccountId(budgetData.getSelectedAccount());
-//
-//            int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
-//            newTransaction.setId(transactionId);
-//            transactionList.add(newTransaction); // need to add to DB? or have list rebuild from DB?
-//
-//            transactionTableView.getSelectionModel().select(newTransaction);
+            Transaction editTransaction = resultPair.getKey();
+            ArrayList<String> stringTags = resultPair.getValue();
+
+            // tw modified in function
+            updateTransactionWrapper(tw, editTransaction, stringTags);
+
+            transactionTableView.getSelectionModel().select(tw);
         });
+    } // editTransaction
+
+    private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
+        // need to check for success and handle failure
+        mTransactionDbAdapter.updateTransaction(transaction);
+
+        // compare origTw valees with new ones
+        logger.info("compare: " + transaction.getDisplayName().compareTo(tw.getTransaction().getDisplayName()));
+
+        // set the new values
+        tw.setTransaction(transaction);
+
+        // must call updateTransactionTags - check for changes
+        updateTransactionTags(tw, transaction, stringTags);
+
+    }
+
+    private void updateTransactionTags(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
+        logger.info("");
+
+        // TODO: do comparisons and shit
+        for (Object o : tw.getTags()) {
+            Tag tag = (Tag) o;
+
+            // CASCADE will delete from TT table
+            tagDbAdapter.delete(tag.getId());
+        }
+
+        ArrayList<Tag> tags = new ArrayList<>();
+
+        for (String stringTag : stringTags) {
+            Tag tag = new Tag(stringTag);
+            tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
+
+            tags.add(tag);
+
+            TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
+            ttDbAdapter.createTransactionTag(tt);
+        }
+
+        tw.setTags(FXCollections.observableArrayList(tags));
     }
 
     @FXML
@@ -245,34 +285,35 @@ public class TransactionViewController implements Initializable {
         dialog.setTitle("New Transaction");
         dialog.setHeaderText("<header text>");
 
-        //Optional<Pair<String, String>> result = dialog.showAndWait();
-        //Optional<Pair<Transaction,ArrayList<Tag>>> result = dialog.showAndWait();
         Optional<Pair<Transaction, ArrayList<String>>> result = dialog.showAndWait();
 
         // Add to data store and set it as table selection
         result.ifPresent(resultPair -> {
-            logger.info("newTrans " + resultPair);
+            logger.info("New Transaction: " + resultPair);
 
             Transaction newTransaction = resultPair.getKey();
             ArrayList<String> stringTags = resultPair.getValue();
 
             newTransaction.setAccountId(budgetData.getSelectedAccount());
+            TransactionWrapper tw = createTransactionWrapper(newTransaction, stringTags);
 
-            // need to check for success and handle failure
-            int transactionId = mTransactionDbAdapter.createTransaction(newTransaction);
-
-            ArrayList<Tag> tags = createTransactionTags(newTransaction, stringTags);
-
-            TransactionWrapper tw = new TransactionWrapper();
-            tw.setTransaction(newTransaction);
-            tw.setTags(FXCollections.observableArrayList(tags));
-
-            transactionWrapperList.add(tw);; // need to add to DB? or have list rebuild from DB?
-
+            transactionWrapperList.add(tw);
             transactionTableView.getSelectionModel().select(tw);
         });
 
     } // addTransaction
+
+    private TransactionWrapper createTransactionWrapper(Transaction transaction, ArrayList<String> stringTags) {
+        logger.info("");
+        
+        // need to check for success and handle failure
+        mTransactionDbAdapter.createTransaction(transaction);
+
+        ArrayList<Tag> tags = createTransactionTags(transaction, stringTags);
+        TransactionWrapper tw = new TransactionWrapper(transaction, tags);
+
+        return tw;
+    }
 
     /**
      * This will take a Transaction object and list of strings and create
@@ -283,6 +324,8 @@ public class TransactionViewController implements Initializable {
      * @return
      */
     private ArrayList<Tag> createTransactionTags(Transaction transaction, ArrayList<String> stringTags) {
+        logger.info("");
+        
         ArrayList<Tag> tags = new ArrayList<>();
 
         for (String stringTag : stringTags) {

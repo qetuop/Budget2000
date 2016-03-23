@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
@@ -37,40 +38,32 @@ public class TransactionDialog extends Dialog {
     TextField displayName = new TextField();
     TextField amount = new TextField();
     TextField tagTF = new TextField();
+    
+    Transaction transaction = new Transaction();
 
-    //ArrayList<Tag> tags = new ArrayList<>();
     ArrayList<String> tags = new ArrayList<>();
 
-    // restrict amount text field to numbers
-    
     TextFormatter<String> amountFormatter = new TextFormatter<String>(change -> {
- //       change.setText(change.getText().replaceAll("[\\D+]", "")); // doesn't work - 
-            change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
-//            change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{2})?$]", ""));
+        change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
         return change;
     });
 
-    TransactionDialog(Transaction transaction) {
+    // Edit this transaction - need to retain some values, ex: _id
+    TransactionDialog(Transaction transactionIn) {
         init();
 
-        //LocalDate locatDate = transaction.getDate();
+        transaction = transactionIn;
+        
         LocalDate locatDate = LocalDate.ofEpochDay(transaction.getDate());
         datePicker.setValue(locatDate);
-
         name.setText(transaction.getName());
         displayName.setText(transaction.getDisplayName());
         amount.setText(Double.toString(transaction.getAmount()));
 
         TransactionTagDbAdapter ttDbAdapter = new TransactionTagDbAdapter();
-        //ttDbAdapter.createConnection();
-        //ttDbAdapter.createDatabase();
-
         TagDbAdapter tagDbAdapter = new TagDbAdapter();
-        //tagDbAdapter.createConnection();
-        //tagDbAdapter.createDatabase();
 
-        ArrayList<TransactionTag> objects = new ArrayList<>();
-        objects = ttDbAdapter.getAllForTransaction(transaction.getId());
+        ArrayList<TransactionTag> objects = ttDbAdapter.getAllForTransaction(transaction.getId());
         StringBuilder sb = new StringBuilder();
         String delim = "";
         for (TransactionTag tt : objects) {
@@ -78,7 +71,7 @@ public class TransactionDialog extends Dialog {
             sb.append(delim).append(tag.getName());
             delim = ",";
         }
-        
+
         tagTF.setText(sb.toString());
     }
 
@@ -89,9 +82,8 @@ public class TransactionDialog extends Dialog {
     private void init() {
         // Set the button types.
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-//NumberFormat amountFormatter = NumberFormat.getNumberInstance();
-        amount.setTextFormatter(amountFormatter);
 
+        amount.setTextFormatter(amountFormatter);
         name.setPromptText("Transaction Name");
         displayName.setPromptText("Display Name");
         amount.setPromptText("Transaction Amount");
@@ -129,14 +121,21 @@ public class TransactionDialog extends Dialog {
                 } catch (ParseException ex) {
                     Logger.getLogger(TransactionViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-                Transaction transaction = new Transaction();
+                
                 transaction.setName(name.getText());
                 transaction.setDisplayName(displayName.getText());
                 transaction.setAmount(bigDecimal.doubleValue());
                 transaction.setDate(datePicker.getValue().toEpochDay());
 
-                String[] items = tagTF.getText().split(",");
+                // returns an empty string --> array of size 1 --> not good
+                //String[] items = tagTF.getText().split("\\s+",-1);//.split(",");
+                // is this really the cleanest way?
+                String[] items = Arrays.asList(
+                        tagTF.getText().split(" "))
+                        .stream()
+                        .filter(str -> !str.isEmpty())
+                        .collect(Collectors.toList())
+                        .toArray(new String[0]);
                 tags = new ArrayList<>(Arrays.asList(items));
 
                 return new Pair<>(transaction, tags);

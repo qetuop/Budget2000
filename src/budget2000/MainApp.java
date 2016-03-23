@@ -31,9 +31,13 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
+    private static final Logger logger = Logger.getGlobal();
+    
     //private BudgetData budgetData = new BudgetData();
     Stage mPrimaryStage;
     MainAppViewController mvc;
+    
+    AbstractDbAdapter dbAdapter;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -46,10 +50,12 @@ public class MainApp extends Application {
         root = loader.load();
 
         // Foreign key constraint error workaround, why doe this fix it?!?
-        AbstractDbAdapter dbAdapter = new AbstractDbAdapter();
-        dbAdapter.close();
-        dbAdapter.createConnection();
-
+        dbAdapter = new AbstractDbAdapter();
+        
+        logger.info("Droping tables - REMOVE ME");  
+        dbAdapter.dropTables();
+        dbAdapter.createDatabase();
+        
         // enable all children to get this class (and thus the userData)
         mvc = loader.getController();
         mvc.setBudgetData(new BudgetData());
@@ -60,6 +66,10 @@ public class MainApp extends Application {
         primaryStage.setTitle("Budget 2000");
         mPrimaryStage = primaryStage;
         primaryStage.show();
+        
+        // TODO: remove this - testing
+        File file = new File("budget2000_3.db");
+        loadFile(file);
     }
 
     /**
@@ -113,33 +123,41 @@ public class MainApp extends Application {
 
         File file = fileChooser.showOpenDialog(mPrimaryStage);
         if (file != null) {
-            System.out.println("file " + file.getName());
-
-            if (file.getName().compareTo(AbstractDbAdapter.DATABASE_NAME) == 0) {
-                return rv;
-            }
-
-            // backup current DB
-            File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
-            if (currentDB.exists()) {
-                currentDB.renameTo(new File(AbstractDbAdapter.DATABASE_NAME + ".bak"));
-            }
-
-            currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
-
-            try {
-                // copy new DB to correct name
-                Files.copy(file.toPath(), currentDB.toPath(), REPLACE_EXISTING);
-            } catch (IOException ex) {
-                Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            AbstractDbAdapter dbAdapter = new AbstractDbAdapter();
-            dbAdapter.close();
-            dbAdapter.createConnection();
-
-            mvc.setBudgetData(new BudgetData());
+            loadFile(file);
         }
+        return rv;
+    }
+
+    private Boolean loadFile(File file) {
+        Boolean rv = false;
+
+        System.out.println("file " + file.getName());
+
+        if (file.getName().compareTo(AbstractDbAdapter.DATABASE_NAME) == 0) {
+            return rv;
+        }
+
+        // backup current DB
+        File currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
+        if (currentDB.exists()) {
+            currentDB.renameTo(new File(AbstractDbAdapter.DATABASE_NAME + ".bak"));
+        }
+
+        currentDB = new File(AbstractDbAdapter.DATABASE_NAME);
+
+        try {
+            // copy new DB to correct name
+            Files.copy(file.toPath(), currentDB.toPath(), REPLACE_EXISTING);
+        } catch (IOException ex) {
+            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        //dbAdapter = new AbstractDbAdapter();
+        dbAdapter.close();
+        dbAdapter.createConnection();
+
+        mvc.setBudgetData(new BudgetData());
+
         return rv;
     }
 

@@ -16,7 +16,7 @@ public class AbstractDbAdapter {
 
     protected static Logger logger = Logger.getGlobal();
     
-    protected static Connection c = null;
+    protected static Connection conn = null;
     private static Boolean databaseCreated = false;
 
     // Database Version
@@ -111,40 +111,40 @@ public class AbstractDbAdapter {
     // TODO: is this a bad idea?
     public AbstractDbAdapter() {
         logger.info("");
+        
+        // each will return if already created
         createConnection();
         createDatabase();
     }
     
-    public void createConnection() {
-        logger.info("");
+    public void createConnection() {                
         // Create connection
-        if (c != null) {
+        if (conn != null) {
             return;
         }
 
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_NAME);
-            logger.info("Opened database successfully");
+            conn = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_NAME);
+            logger.info("Connection created");
+            
+             // necessary for stuff to work right - cascade
+             Statement stmt = conn.createStatement(); 
+             stmt.executeUpdate("PRAGMA foreign_keys = ON; ");
+             
         } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
+            logger.severe(e.toString());
         }
     } // createConnection
     
-    public void createDatabase() {
-        
-        
-        Statement stmt = null;
-
+    public void createDatabase() {                        
         if (databaseCreated == true) {
             return;
         }
-        logger.info("Droping tables - REMOVE ME");        
-        dropTables();
 
         // CREATE Table
         try {
-            stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql
                     = CREATE_TABLE_USER + ";"
                     + CREATE_TABLE_INSTITUTION + ";"
@@ -161,24 +161,20 @@ public class AbstractDbAdapter {
             
             databaseCreated = true;
             
-            // necessary for stuff to work right - cascade
-            stmt.execute("PRAGMA foreign_keys = ON;");
-            stmt.close();
-            
         } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ":createDatabase: " + e);
+            logger.severe(e.toString());
         }
     }
 
     public void close() {
         try {
-            if (c != null) {
-                c.close();
-                c = null; // TODO: is this right?
+            if (conn != null) {
+                conn.close();
+                conn = null; // TODO: is this right?
                 logger.info("Connection Closed");
             }
         } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ":close: " + e.getClass().getName() + ": " + e.getMessage());
+            logger.warning(e.toString());
             System.exit(0);
         }
     }
@@ -186,39 +182,46 @@ public class AbstractDbAdapter {
     public void dropTables() {
         Statement stmt = null;
 
+        // tables with relationships must be dropped in correct order?
+        // stmt = conn.createStatement(); 
+        // stmt.executeUpdate("PRAGMA foreign_keys = OFF; ");
+        
         try {
-            stmt = c.createStatement();
+            stmt = conn.createStatement();
             for (String s : new String[]{
                 TABLE_USER, 
                 TABLE_INSTITUTION, 
                 TABLE_ACCOUNT,
+                TABLE_TRANSACTION_TAG,
                 TABLE_TRANSACTION,
-                TABLE_TAG,
-                TABLE_TRANSACTION_TAG            
+                TABLE_TAG                 
             }) {
 
                 String sql = "DROP TABLE " + s;
                 stmt.executeUpdate(sql);
                 logger.info(s + " dropped");
             }
+            
+            // stmt = conn.createStatement(); 
+            // stmt.executeUpdate("PRAGMA foreign_keys = ON; ");
 
         } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ":dropTables: " + e.getClass().getName() + ": " + e.getMessage());
+            logger.warning(e.toString());
         }
     }
     
     // DELETE
     public void delete(Integer _id) {
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("DELETE FROM %s WHERE %s=%d;",
                     THIS_TABLE, COLUMN_ID, _id);
 
             stmt.executeUpdate(sql); // executeUpdate
             stmt.close();
-            c.commit();
+            conn.commit();
         } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ":delete: " + e);
+            logger.warning(e.toString());
         }
     } // delete   
 

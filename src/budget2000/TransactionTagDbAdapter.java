@@ -5,12 +5,12 @@
  */
 package budget2000;
 
-import static budget2000.AbstractDbAdapter.c;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import static budget2000.AbstractDbAdapter.conn;
 
 /**
  *
@@ -29,14 +29,14 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         int generatedKey = 0;
 
         try {
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
+            conn.setAutoCommit(false);
+            stmt = conn.createStatement();
             
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES (%d, %d);",
                     THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, COLUMN_TRANSACTION_TAG_TAG_ID,
                     transactionTag.getTransactionId(), transactionTag.getTagId());
-
-            PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+logger.info(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -46,7 +46,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
             }
 
             stmt.close();
-            c.commit();
+            conn.commit();
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
@@ -81,7 +81,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         TransactionTag x = null;
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
                     TABLE_USER, COLUMN_ID, _id);
 
@@ -108,7 +108,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         ArrayList<TransactionTag> objects = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
@@ -137,7 +137,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
         ArrayList<TransactionTag> objects = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
                     THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, _id);
 

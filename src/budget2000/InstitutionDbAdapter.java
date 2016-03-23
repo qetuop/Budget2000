@@ -27,14 +27,14 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
         int generatedKey = 0;
 
         try {
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
+            conn.setAutoCommit(false);
+            stmt = conn.createStatement();
             
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES ('%s', '%s');",
                     THIS_TABLE, COLUMN_INSTITUTION_NAME, COLUMN_INSTITUTION_USER_ID,
                     inst.getInstitutionName(), inst.getUserId() );
 
-            PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -44,7 +44,7 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
             }
 
             stmt.close();
-            c.commit();
+            conn.commit();
 
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
@@ -80,7 +80,7 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
         ArrayList<Institution> objects = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
@@ -108,7 +108,7 @@ public class InstitutionDbAdapter extends AbstractDbAdapter {
         ArrayList<Institution> objects = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
                     THIS_TABLE, COLUMN_INSTITUTION_USER_ID, user_id);
 

@@ -18,7 +18,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
 
     public TransactionDbAdapter() {
         super();
-        
+
         THIS_TABLE = TABLE_TRANSACTION;
     }
 
@@ -28,15 +28,15 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
         int generatedKey = 0;
 
         try {
-            c.setAutoCommit(false);
-            stmt = c.createStatement();
+            conn.setAutoCommit(false);
+            stmt = conn.createStatement();
 
             String sql = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (%d, '%s','%s', %f, %d);",
                     THIS_TABLE,
                     COLUMN_TRANSACTION_DATE,
-                    COLUMN_TRANSACTION_NAME,      
+                    COLUMN_TRANSACTION_NAME,
                     COLUMN_TRANSACTION_DISPLAY_NAME,
-                    COLUMN_TRANSACTION_AMOUNT,          
+                    COLUMN_TRANSACTION_AMOUNT,
                     COLUMN_TRANSACTION_ACCOUNT_ID,
                     transaction.getDate(),
                     transaction.getName(),
@@ -44,7 +44,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
                     transaction.getAmount(),
                     transaction.getAccountId());
 
-            PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
 
             ResultSet rs = ps.getGeneratedKeys();
@@ -54,7 +54,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             }
 
             stmt.close();
-            c.commit();
+            conn.commit();
 
         } catch (Exception e) {
             System.err.println(this.getClass().getName() + ":createTransaction: " + e);
@@ -65,6 +65,43 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
 
     } // create
 
+     // UPDATE
+    public void updateTransaction(Transaction transaction) {
+        Statement stmt = null;
+
+        try {
+            conn.setAutoCommit(false);
+            stmt = conn.createStatement();
+
+            String sql = String.format("UPDATE %s SET %s = %d, %s = '%s', %s = '%s', %s = %f, %s = %d WHERE %s = %d",
+                    THIS_TABLE,
+                    COLUMN_TRANSACTION_DATE,
+                    transaction.getDate(),
+                    COLUMN_TRANSACTION_NAME,
+                     transaction.getName(),
+                    COLUMN_TRANSACTION_DISPLAY_NAME,
+                    transaction.getDisplayName(),
+                    COLUMN_TRANSACTION_AMOUNT,
+                    transaction.getAmount(),
+                    COLUMN_TRANSACTION_ACCOUNT_ID,
+                    transaction.getAccountId(),
+                    COLUMN_ID,
+                    transaction.getId()
+            );
+logger.info(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.execute();
+
+            ResultSet rs = ps.getGeneratedKeys();
+
+            stmt.close();
+            conn.commit();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ":createTransaction: " + e);
+        }
+    } // update
+    
     private Transaction cursorToTransaction(ResultSet rs) {
         Transaction transaction = null;
 
@@ -112,13 +149,13 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
         return user;
 
     } // getUser
-*/
+     */
     // SELECT ALL
     public ArrayList<Transaction> getAll() {
         ArrayList<Transaction> users = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s;", THIS_TABLE);
 
             ResultSet rs = stmt.executeQuery(sql); // executeQuery
@@ -141,13 +178,13 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
         return users;
 
     } // getUsers
-    
-     // SELECT ALL
+
+    // SELECT ALL
     public ArrayList<Transaction> getAllForAccount(Integer _id) {
         ArrayList<Transaction> users = new ArrayList<>();
 
         try {
-            Statement stmt = c.createStatement();
+            Statement stmt = conn.createStatement();
             String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
                     THIS_TABLE, COLUMN_TRANSACTION_ACCOUNT_ID, _id);
 
@@ -171,25 +208,9 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
         return users;
 
     } // getUsers
-    
-/*
-    // UPDATE
-    public void update(User user) {
-        try {
-            String sql = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = %d;",
-                    TABLE_USER, COLUMN_USER_FIRST_NAME, COLUMN_USER_LAST_NAME, COLUMN_ID, user.getId());
-            PreparedStatement update = c.prepareStatement(sql);
 
-            update.setString(1, user.getFirstName());
-            update.setString(2, user.getLastName());
-
-            update.executeUpdate();
-
-        } catch (Exception e) {
-            System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
-        }
-    }
-
+   
+    /*
     // DELETE
     public void delete(Integer _id) {
 
@@ -205,5 +226,5 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
             System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
         }
     }
-*/
+     */
 } // TransactionDbAdapter
