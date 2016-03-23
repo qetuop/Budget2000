@@ -69,21 +69,21 @@ public class AbstractDbAdapter {
             + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_USER_FIRST_NAME + " text, "
             + COLUMN_USER_LAST_NAME + " text "
-            + ")";  // no trailing ';'
+            + ");";  // no trailing ';'
 
     private static final String CREATE_TABLE_INSTITUTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_INSTITUTION + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_INSTITUTION_USER_ID + " integer not null references " + TABLE_USER + "(" + COLUMN_ID +") ON DELETE CASCADE, "
             + COLUMN_INSTITUTION_NAME + " text "           
-            + ")";  // no trailing ';'
+            + ");";  // no trailing ';'
     
     private static final String CREATE_TABLE_ACCOUNT = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ACCOUNT + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_ACCOUNT_INSTITUTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
             + COLUMN_ACCOUNT_NAME + " text "            
-            + ")";  // no trailing ';'
+            + ");";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION + "("
@@ -93,21 +93,33 @@ public class AbstractDbAdapter {
             + COLUMN_TRANSACTION_NAME + " text, "
             + COLUMN_TRANSACTION_DISPLAY_NAME + " text, "
             + COLUMN_TRANSACTION_AMOUNT + " decimal(10,2) "             
-            + ")";  // no trailing ';'
+            + ");";  // no trailing ';'
     
     private static final String CREATE_TABLE_TAG = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TAG + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
             + COLUMN_TAG_NAME + " text "            
-            + ")";  // no trailing ';'
+            + ");";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION_TAG = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TRANSACTION_TAG + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
-            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer not null references " + TABLE_INSTITUTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
-            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer not null references " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "            
-            + ")";  // no trailing ';'
+            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer references " + TABLE_TRANSACTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
+            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer references " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "            
+            + ")";
 
+//    private static final String CREATE_TABLE_TRANSACTION_TAG = "CREATE TABLE IF NOT EXISTS "
+//            + TABLE_TRANSACTION_TAG + "("
+//            + COLUMN_ID + " integer not null primary key autoincrement, "
+//            
+//            + COLUMN_TRANSACTION_TAG_TRANSACTION_ID + " integer, " 
+//            + "FOREIGN KEY(" + COLUMN_TRANSACTION_TAG_TRANSACTION_ID +") REFERENCES " + TABLE_TRANSACTION + "(" + COLUMN_ID + ") ON DELETE CASCADE, "
+//            
+//            + COLUMN_TRANSACTION_TAG_TAG_ID + " integer, " 
+//            + "FOREIGN KEY(" + COLUMN_TRANSACTION_TAG_TAG_ID +") REFERENCES " + TABLE_TAG + "(" + COLUMN_ID + ") ON DELETE CASCADE "          
+//            
+//            + ");";
+    
     // TODO: is this a bad idea?
     public AbstractDbAdapter() {
         logger.info("");
@@ -126,11 +138,12 @@ public class AbstractDbAdapter {
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_NAME);
-            logger.info("Connection created");
+            logger.info("Connection created: " + conn);
             
              // necessary for stuff to work right - cascade
              Statement stmt = conn.createStatement(); 
              stmt.executeUpdate("PRAGMA foreign_keys = ON; ");
+             stmt.close();
              
         } catch (Exception e) {
             logger.severe(e.toString());
@@ -141,29 +154,55 @@ public class AbstractDbAdapter {
         if (databaseCreated == true) {
             return;
         }
-
-        // CREATE Table
+        
         try {
             Statement stmt = conn.createStatement();
-            String sql
-                    = CREATE_TABLE_USER + ";"
-                    + CREATE_TABLE_INSTITUTION + ";"
-                    + CREATE_TABLE_ACCOUNT + ";"
-                    + CREATE_TABLE_TRANSACTION + ";"
-                    + CREATE_TABLE_TAG + ";"
-                    + CREATE_TABLE_TRANSACTION_TAG + ";"
-                    ;
+            for (String sql : new String[]{
+                CREATE_TABLE_USER, 
+                CREATE_TABLE_INSTITUTION, 
+                CREATE_TABLE_ACCOUNT,
+                CREATE_TABLE_TRANSACTION,
+                CREATE_TABLE_TAG,
+                CREATE_TABLE_TRANSACTION_TAG                 
+            }) {
 
-            stmt.executeUpdate(sql);
-            stmt.close();
-
-            logger.info("Tables created");
-            
+logger.info("SQL:" +sql);                
+                stmt.executeUpdate(sql);
+                stmt.close();
+                //logger.info(s + " dropped");
+            }
+            logger.info("Tables created");            
             databaseCreated = true;
             
         } catch (Exception e) {
             logger.severe(e.toString());
+            System.exit(1);
         }
+            
+            
+
+//        // CREATE Table
+//        try {
+//            Statement stmt = conn.createStatement();
+//            String sql
+//                    = CREATE_TABLE_USER + ";"
+//                    + CREATE_TABLE_INSTITUTION + ";"
+//                    + CREATE_TABLE_ACCOUNT + ";"
+//                    + CREATE_TABLE_TRANSACTION + ";"
+//                    + CREATE_TABLE_TAG + ";"
+//                    + CREATE_TABLE_TRANSACTION_TAG + ";"
+//                    ;
+//logger.info("SQL:" +sql);
+//            stmt.executeUpdate(sql);
+//            stmt.close();
+//
+//            logger.info("Tables created");
+//            
+//            databaseCreated = true;
+//            
+//        } catch (Exception e) {
+//            logger.severe(e.toString());
+//        }
     }
 
     public void close() {
@@ -180,14 +219,13 @@ public class AbstractDbAdapter {
     }
 
     public void dropTables() {
-        Statement stmt = null;
 
         // tables with relationships must be dropped in correct order?
         // stmt = conn.createStatement(); 
         // stmt.executeUpdate("PRAGMA foreign_keys = OFF; ");
         
         try {
-            stmt = conn.createStatement();
+            Statement stmt = conn.createStatement();
             for (String s : new String[]{
                 TABLE_USER, 
                 TABLE_INSTITUTION, 
@@ -198,8 +236,11 @@ public class AbstractDbAdapter {
             }) {
 
                 String sql = "DROP TABLE " + s;
+logger.info("SQL:" +sql);                
                 stmt.executeUpdate(sql);
+                stmt.close();
                 logger.info(s + " dropped");
+                databaseCreated = false;
             }
             
             // stmt = conn.createStatement(); 
@@ -216,7 +257,7 @@ public class AbstractDbAdapter {
             Statement stmt = conn.createStatement();
             String sql = String.format("DELETE FROM %s WHERE %s=%d;",
                     THIS_TABLE, COLUMN_ID, _id);
-
+logger.info("SQL:" +sql);
             stmt.executeUpdate(sql); // executeUpdate
             stmt.close();
             conn.commit();

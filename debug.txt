@@ -1,0 +1,69 @@
+ant -f /home/brian/NetBeansProjects/JAVA/Budget2000 jfxsa-run
+init:
+Deleting: /home/brian/NetBeansProjects/JAVA/Budget2000/build/built-jar.properties
+deps-jar:
+Updating property file: /home/brian/NetBeansProjects/JAVA/Budget2000/build/built-jar.properties
+compile:
+Deleting directory /home/brian/NetBeansProjects/JAVA/Budget2000/dist/lib
+Copying 1 file to /home/brian/NetBeansProjects/JAVA/Budget2000/dist/lib
+Detected JavaFX Ant API version 1.3
+jfx-deployment:
+jar:
+Copying 13 files to /home/brian/NetBeansProjects/JAVA/Budget2000/dist/run691103669
+jfx-project-run:
+Executing /home/brian/NetBeansProjects/JAVA/Budget2000/dist/run691103669/Budget2000.jar using platform /usr/lib/jvm/java-8-oracle/jre/bin/java
+2016-03-23 10:04:49 INFO budget2000.UserViewController initialize 
+2016-03-23 10:04:49 INFO budget2000.InstitutionViewController initialize 
+2016-03-23 10:04:49 INFO budget2000.AccountViewController initialize 
+2016-03-23 10:04:49 INFO budget2000.TransactionViewController initialize 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter createConnection Connection created: org.sqlite.SQLiteConnection@449e1eae:null
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter createDatabase Tables created
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController setBudgetData 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController init 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController userSelected 0
+2016-03-23 10:04:49 INFO budget2000.UserViewController init 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.UserViewController update 
+2016-03-23 10:04:49 INFO budget2000.UserViewController tableSelection selected user now = User{ 1 a b }
+2016-03-23 10:04:49 INFO budget2000.BudgetData setSelectedUser 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController tableSelection 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController userSelected 1
+2016-03-23 10:04:49 INFO budget2000.InstitutionViewController init 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.InstitutionViewController tableSelection selected Institution = Institution{ 1 Navy Federal 1 }
+2016-03-23 10:04:49 INFO budget2000.BudgetData setSelectedInstitution 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController tableSelection 
+2016-03-23 10:04:49 INFO budget2000.AccountViewController init 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.AccountViewController tableSelection selected Account = Account{ 1 Savings 1 }
+2016-03-23 10:04:49 INFO budget2000.BudgetData setSelectedAccount 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController tableSelection 
+2016-03-23 10:04:49 INFO budget2000.TransactionViewController init 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.AbstractDbAdapter <init> 
+2016-03-23 10:04:49 INFO budget2000.TransactionViewController tableSelection selected Transaction = Transaction{id=1, name=a, displayName=b, accountId=1, date=16865, amount=0.0}
+2016-03-23 10:04:49 INFO budget2000.BudgetData setSelectedTransaction 
+2016-03-23 10:04:49 INFO budget2000.MainAppViewController tableSelection 
+2016-03-23 10:04:59 INFO budget2000.TransactionViewController addTransaction 
+2016-03-23 10:05:01 INFO budget2000.TransactionViewController lambda$addTransaction$8 New Transaction: Transaction{id=0, name=, displayName=, accountId=0, date=16883, amount=0.0}=[]
+2016-03-23 10:05:01 INFO budget2000.TransactionViewController createTransactionWrapper 
+2016-03-23 10:05:01 INFO budget2000.TransactionViewController createTransactionTags 
+2016-03-23 10:05:01 INFO budget2000.TransactionViewController tableSelection selected Transaction = Transaction{id=2, name=, displayName=, accountId=1, date=16883, amount=0.0}
+2016-03-23 10:05:01 INFO budget2000.BudgetData setSelectedTransaction 
+2016-03-23 10:05:01 INFO budget2000.MainAppViewController tableSelection 
+2016-03-23 10:05:13 INFO budget2000.TransactionViewController addTransaction 
+2016-03-23 10:05:15 INFO budget2000.TransactionViewController lambda$addTransaction$8 New Transaction: Transaction{id=0, name=, displayName=, accountId=0, date=16883, amount=0.0}=[d]
+2016-03-23 10:05:15 INFO budget2000.TransactionViewController createTransactionWrapper 
+2016-03-23 10:05:15 INFO budget2000.TransactionViewController createTransactionTags 
+2016-03-23 10:05:15 INFO budget2000.TagDbAdapter createTag INSERT INTO tag (name) VALUES ('d');
+ttDbAdapter.conn org.sqlite.SQLiteConnection@449e1eae
+2016-03-23 10:05:15 INFO budget2000.TransactionTagDbAdapter createTransactionTag INSERT INTO transaction_tag (transaction_id, tag_id) VALUES (3, 2);
+2016-03-23 10:05:15 SEVERE budget2000.TransactionTagDbAdapter createTransactionTag java.sql.SQLException: [SQLITE_CONSTRAINT]  Abort due to constraint violation (FOREIGN KEY constraint failed)
+2016-03-23 10:05:15 INFO budget2000.TransactionViewController tableSelection selected Transaction = Transaction{id=3, name=, displayName=, accountId=1, date=16883, amount=0.0}
+2016-03-23 10:05:15 INFO budget2000.BudgetData setSelectedTransaction 
+2016-03-23 10:05:15 INFO budget2000.MainAppViewController tableSelection 
+Deleting directory /home/brian/NetBeansProjects/JAVA/Budget2000/dist/run691103669
+jfxsa-run:
+BUILD SUCCESSFUL (total time: 30 seconds)

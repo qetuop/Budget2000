@@ -144,10 +144,7 @@ public class UserViewController implements Initializable {
     protected void init() {
         logger.info("");
 
-        mUserDbAdapter = new UserDbAdapter();
-        //mUserDbAdapter.createConnection();
-        //mUserDbAdapter.createDatabase();
-        //userList.setAll(FXCollections.observableArrayList(mUserDbAdapter.getUsers()));
+        mUserDbAdapter = new UserDbAdapter();        
 
         // only enable if user selected
         deleteUserBtn.setDisable(true);

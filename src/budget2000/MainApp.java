@@ -52,9 +52,9 @@ public class MainApp extends Application {
         // Foreign key constraint error workaround, why doe this fix it?!?
         dbAdapter = new AbstractDbAdapter();
         
-        logger.info("Droping tables - REMOVE ME");  
-        dbAdapter.dropTables();
-        dbAdapter.createDatabase();
+//        logger.info("Droping tables - REMOVE ME");  
+//        dbAdapter.dropTables();
+//        dbAdapter.createDatabase();
         
         // enable all children to get this class (and thus the userData)
         mvc = loader.getController();
@@ -68,8 +68,8 @@ public class MainApp extends Application {
         primaryStage.show();
         
         // TODO: remove this - testing
-        File file = new File("budget2000_3.db");
-        loadFile(file);
+        File file = new File("budget2000_5.db");
+        //loadFile(file);
     }
 
     /**

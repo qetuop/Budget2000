@@ -82,8 +82,6 @@ public class InstitutionViewController implements Initializable {
         logger.info("");
 
         mInstitutionDbAdapter = new InstitutionDbAdapter();
-        //mInstitutionDbAdapter.createConnection();
-        //mInstitutionDbAdapter.createDatabase();
 
         // query all DB items into the list and set the Tableview to this list, select first item
         update();

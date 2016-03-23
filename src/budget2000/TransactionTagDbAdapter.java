@@ -35,7 +35,7 @@ public class TransactionTagDbAdapter extends AbstractDbAdapter {
             String sql = String.format("INSERT INTO %s (%s, %s) VALUES (%d, %d);",
                     THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, COLUMN_TRANSACTION_TAG_TAG_ID,
                     transactionTag.getTransactionId(), transactionTag.getTagId());
-logger.info(sql);
+logger.info("SQL:" +sql);
             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
 

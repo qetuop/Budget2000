@@ -331,9 +331,8 @@ public class TransactionViewController implements Initializable {
         for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
             tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
-
-            tags.add(tag);
-
+            tags.add(tag);            
+System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
         }
