@@ -38,14 +38,15 @@ public class Importer {
 //            csvReader = new CSVReader(new FileReader("sample.csv"));
             csvReader = new CSVReader(new FileReader(file));
             String[] line;
+            
             line = csvReader.readNext(); // get first non line
-            while ((line = csvReader.readNext()) != null) {
-
+            
+            while ( (line = csvReader.readNext()) != null && line[0].length() != 0 ) {
                 //"Transaction Date"  ,  "Posted Date"  ,  "Description"  ,  "Debit"  ,  "Credit"
                 //"11/13/2014"  ,  "11/14/2014"  ,  "7-ELEVEN 12345 Foo FG"  ,  "41.33",""
 
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy");
                 LocalDate date = LocalDate.parse(line[0], formatter);
 
                 String amount = "";

@@ -155,8 +155,7 @@ public class AbstractDbAdapter {
             return;
         }
         
-        try {
-            Statement stmt = conn.createStatement();
+        try {            
             for (String sql : new String[]{
                 CREATE_TABLE_USER, 
                 CREATE_TABLE_INSTITUTION, 
@@ -165,44 +164,17 @@ public class AbstractDbAdapter {
                 CREATE_TABLE_TAG,
                 CREATE_TABLE_TRANSACTION_TAG                 
             }) {
-
-logger.info("SQL:" +sql);                
+                logger.info("SQL:" +sql);                
+                Statement stmt = conn.createStatement();
                 stmt.executeUpdate(sql);
                 stmt.close();
-                //logger.info(s + " dropped");
             }
             logger.info("Tables created");            
             databaseCreated = true;
             
         } catch (Exception e) {
             logger.severe(e.toString());
-            System.exit(1);
         }
-            
-            
-
-//        // CREATE Table
-//        try {
-//            Statement stmt = conn.createStatement();
-//            String sql
-//                    = CREATE_TABLE_USER + ";"
-//                    + CREATE_TABLE_INSTITUTION + ";"
-//                    + CREATE_TABLE_ACCOUNT + ";"
-//                    + CREATE_TABLE_TRANSACTION + ";"
-//                    + CREATE_TABLE_TAG + ";"
-//                    + CREATE_TABLE_TRANSACTION_TAG + ";"
-//                    ;
-//logger.info("SQL:" +sql);
-//            stmt.executeUpdate(sql);
-//            stmt.close();
-//
-//            logger.info("Tables created");
-//            
-//            databaseCreated = true;
-//            
-//        } catch (Exception e) {
-//            logger.severe(e.toString());
-//        }
     }
 
     public void close() {
@@ -225,7 +197,7 @@ logger.info("SQL:" +sql);
         // stmt.executeUpdate("PRAGMA foreign_keys = OFF; ");
         
         try {
-            Statement stmt = conn.createStatement();
+            
             for (String s : new String[]{
                 TABLE_USER, 
                 TABLE_INSTITUTION, 
@@ -234,9 +206,10 @@ logger.info("SQL:" +sql);
                 TABLE_TRANSACTION,
                 TABLE_TAG                 
             }) {
-
                 String sql = "DROP TABLE " + s;
-logger.info("SQL:" +sql);                
+                
+                logger.info("SQL:" +sql);    
+                Statement stmt = conn.createStatement();
                 stmt.executeUpdate(sql);
                 stmt.close();
                 logger.info(s + " dropped");
@@ -253,11 +226,13 @@ logger.info("SQL:" +sql);
     
     // DELETE
     public void delete(Integer _id) {
-        try {
-            Statement stmt = conn.createStatement();
+        try {            
             String sql = String.format("DELETE FROM %s WHERE %s=%d;",
                     THIS_TABLE, COLUMN_ID, _id);
-logger.info("SQL:" +sql);
+            
+            logger.info("SQL:" +sql);
+
+            Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql); // executeUpdate
             stmt.close();
             conn.commit();

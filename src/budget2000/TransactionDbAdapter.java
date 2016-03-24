@@ -43,7 +43,7 @@ public class TransactionDbAdapter extends AbstractDbAdapter {
                     transaction.getDisplayName(),
                     transaction.getAmount(),
                     transaction.getAccountId());
-
+            logger.info("SQL: " + sql);
             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.execute();
 
