@@ -353,25 +353,23 @@ System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
         // get transactions
         ArrayList<Transaction> transactions = mTransactionDbAdapter.getAllForAccount(accountId);
 
-        for (Transaction t : transactions) {
+        for (Transaction transaction : transactions) {
 
             // get TransactionTags
-            ArrayList<TransactionTag> ttList = ttDbAdapter.getAllForTransaction(t.getId());
+            ArrayList<TransactionTag> ttList = ttDbAdapter.getAllForTransaction(transaction.getId());
 
             // get Tags
             ArrayList<Tag> tags = new ArrayList<>();
 
-            // create TransactionWrapper
+            // Tags
             for (TransactionTag tt : ttList) {
-
-                tags.add(tagDbAdapter.getTag(tt.getTagId()));
-
-                TransactionWrapper tw = new TransactionWrapper();
-                tw.setTransaction(t);
-                tw.setTags(FXCollections.observableArrayList(tags));
-
-                transactionWrapperList.add(tw);
+                tags.add(tagDbAdapter.getTag(tt.getTagId()));                                
             }
+            
+            TransactionWrapper tw = new TransactionWrapper();
+            tw.setTransaction(transaction);
+            tw.setTags(FXCollections.observableArrayList(tags));
+            transactionWrapperList.add(tw);
         }
 
         transactionTableView.getSelectionModel().selectFirst();
