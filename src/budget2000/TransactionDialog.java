@@ -52,7 +52,8 @@ public class TransactionDialog extends Dialog {
     TransactionDialog(Transaction transactionIn) {
         init();
 
-        transaction = transactionIn;
+        // must use copy!  orig value needs to be retained
+        transaction = new Transaction(transactionIn);
         
         LocalDate locatDate = LocalDate.ofEpochDay(transaction.getDate());
         datePicker.setValue(locatDate);

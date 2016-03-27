@@ -231,7 +231,7 @@ public class TransactionViewController implements Initializable {
 
             // tw modified in function
             updateTransactionWrapper(tw, editTransaction, stringTags);
-
+            
             transactionTableView.getSelectionModel().select(tw);
         });
     } // editTransaction
@@ -239,9 +239,31 @@ public class TransactionViewController implements Initializable {
     private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
         // need to check for success and handle failure
         mTransactionDbAdapter.updateTransaction(transaction);
+        Transaction origTrans = tw.getTransaction();
 
         // compare origTw valees with new ones
-        logger.info("compare: " + transaction.getDisplayName().compareTo(tw.getTransaction().getDisplayName()));
+        logger.info("compare: " + transaction.getDisplayName() + "/" + origTrans.getDisplayName()
+                + " = " + transaction.getDisplayName().equals(origTrans.getDisplayName()));
+        if ( transaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
+            
+            // get list of all transactions with same Name
+            System.out.println("here");
+            ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
+            System.out.println("matched " + matched.size());
+            
+            // does this Name already have an existing mapping?
+            
+            // prompt user to update - TODO display listing of items
+                       
+            // update
+            for ( Transaction updateTrans : matched ) {
+                updateTrans.setDisplayName(transaction.getDisplayName());
+                mTransactionDbAdapter.updateTransaction(updateTrans);
+            }
+            
+            // add mapping to TBD table
+            
+        }
 
         // set the new values
         tw.setTransaction(transaction);
@@ -305,7 +327,7 @@ public class TransactionViewController implements Initializable {
 
     private TransactionWrapper createTransactionWrapper(Transaction transaction, ArrayList<String> stringTags) {
         logger.info("");
-        
+
         // need to check for success and handle failure
         mTransactionDbAdapter.createTransaction(transaction);
 
@@ -325,14 +347,14 @@ public class TransactionViewController implements Initializable {
      */
     private ArrayList<Tag> createTransactionTags(Transaction transaction, ArrayList<String> stringTags) {
         logger.info("");
-        
+
         ArrayList<Tag> tags = new ArrayList<>();
 
         for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
             tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
-            tags.add(tag);            
-System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
+            tags.add(tag);
+            System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
         }
@@ -363,9 +385,9 @@ System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
 
             // Tags
             for (TransactionTag tt : ttList) {
-                tags.add(tagDbAdapter.getTag(tt.getTagId()));                                
+                tags.add(tagDbAdapter.getTag(tt.getTagId()));
             }
-            
+
             TransactionWrapper tw = new TransactionWrapper();
             tw.setTransaction(transaction);
             tw.setTags(FXCollections.observableArrayList(tags));

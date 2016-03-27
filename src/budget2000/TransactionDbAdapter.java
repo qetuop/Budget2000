@@ -207,7 +207,37 @@ logger.info(sql);
 
         return users;
 
-    } // getUsers
+    } // getAllForAccount
+    
+    // SELECT ALL
+    public ArrayList<Transaction> getAllForName(String name) {
+        ArrayList<Transaction> result = new ArrayList<>();
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = '%s';",
+                    THIS_TABLE, COLUMN_TRANSACTION_NAME, name);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                Transaction t = cursorToTransaction(rs);
+                if (t != null) {
+                    result.add(t);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            logger.severe(e.toString());
+        }
+
+        return result;
+
+    } // getAllForName
 
    
     /*

@@ -46,6 +46,15 @@ public class Transaction implements Externalizable {
         this.amount = new SimpleDoubleProperty(this, "amount", 0);
     }
 
+    public Transaction( Transaction ref ) {
+        this.id = new SimpleIntegerProperty(this, "id", ref.getId());
+        this.name = new SimpleStringProperty(this, "name",ref.getName());
+        this.displayName = new SimpleStringProperty(this, "displayName",ref.getDisplayName());
+        this.accountId = new SimpleIntegerProperty(this, "accountId", ref.getAccountId());
+        this.date = new SimpleLongProperty(this, "date", ref.getDate());
+        this.amount = new SimpleDoubleProperty(this, "amount", ref.getAmount());
+    }
+    
     public Transaction(Integer id, Long date, String name, String displayName, Integer accountId, Double amount) {
         this();
 
