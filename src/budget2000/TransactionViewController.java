@@ -216,6 +216,10 @@ public class TransactionViewController implements Initializable {
         logger.info("");
 
         TransactionWrapper tw = transactionTableView.getSelectionModel().getSelectedItem();
+        if ( tw == null ) {
+            return;
+        }
+        
         Transaction transaction = tw.getTransaction();
 
         TransactionDialog dialog = new TransactionDialog(transaction);
@@ -240,14 +244,20 @@ public class TransactionViewController implements Initializable {
         });
     } // editTransaction
 
+    // tw = original transWrapper (trans + tags)
+    // transaction = updated transaction info
+    // stringTags = whatever came out of the edit dialog
     private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
         // need to check for success and handle failure
         mTransactionDbAdapter.updateTransaction(transaction);
         Transaction origTrans = tw.getTransaction();
 
-        // compare origTw valees with new ones
         logger.info("compare: " + transaction.getDisplayName() + "/" + origTrans.getDisplayName()
                 + " = " + transaction.getDisplayName().equals(origTrans.getDisplayName()));
+                
+        // compare origTw values with new ones
+        // If they displayName is different, then all other similar items need
+        // to update their displayName
         if ( transaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
             
             // get list of all transactions with same Name
@@ -256,14 +266,14 @@ public class TransactionViewController implements Initializable {
             // does this Name already have an existing mapping?
             
             // prompt user to update - TODO display listing of items
-                       
+             logger.info("**matched.size="+matched);
             // update
             for ( Transaction updateTrans : matched ) {
                 updateTrans.setDisplayName(transaction.getDisplayName());
                 mTransactionDbAdapter.updateTransaction(updateTrans);
             }
             
-            // add mapping to TBD table
+            // add mapping to TBD table - TODO: what?!?
             
         }
 
