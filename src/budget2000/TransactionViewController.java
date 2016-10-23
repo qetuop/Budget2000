@@ -235,6 +235,8 @@ public class TransactionViewController implements Initializable {
             updateTransactionWrapper(tw, editTransaction, stringTags);
             
             transactionTableView.getSelectionModel().select(tw);
+
+            update();
         });
     } // editTransaction
 
@@ -249,9 +251,7 @@ public class TransactionViewController implements Initializable {
         if ( transaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
             
             // get list of all transactions with same Name
-            System.out.println("here");
             ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
-            System.out.println("matched " + matched.size());
             
             // does this Name already have an existing mapping?
             
@@ -372,7 +372,9 @@ public class TransactionViewController implements Initializable {
 //        return tags;
 //    }
     private void update() {
-        Integer accountId = budgetData.getSelectedAccount();        
+        Integer accountId = budgetData.getSelectedAccount();   
+        
+        // need to create a tmp list to set the actual one to, TODO: is there another way?
         ObservableList<TransactionWrapper>  tmpTransactionWrapperList = FXCollections.observableArrayList();
         
         // get transactions
@@ -396,8 +398,14 @@ public class TransactionViewController implements Initializable {
             tw.setTags(FXCollections.observableArrayList(tags));
             tmpTransactionWrapperList.add(tw);
         }
-        transactionWrapperList.setAll(tmpTransactionWrapperList);
-        transactionTableView.getSelectionModel().selectFirst();
+        
+        // This will maintain the sorting order
+        transactionTableView.getItems().clear();
+        transactionTableView.getItems().addAll(tmpTransactionWrapperList);
+        transactionTableView.sort();
+  
+        //transactionWrapperList.setAll(tmpTransactionWrapperList);
+        //transactionTableView.getSelectionModel().selectFirst();
     }
 
 } // TransactionViewController
