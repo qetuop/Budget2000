@@ -119,7 +119,9 @@ public class TransactionViewController implements Initializable {
 
         // propagate transactions selections
         transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            tableSelection(newValue.getTransaction());
+            if ( newValue != null ) {
+                tableSelection(newValue.getTransaction());
+            }
         });
 
     } // initialize
@@ -370,8 +372,9 @@ public class TransactionViewController implements Initializable {
 //        return tags;
 //    }
     private void update() {
-        Integer accountId = budgetData.getSelectedAccount();
-
+        Integer accountId = budgetData.getSelectedAccount();        
+        ObservableList<TransactionWrapper>  tmpTransactionWrapperList = FXCollections.observableArrayList();
+        
         // get transactions
         ArrayList<Transaction> transactions = mTransactionDbAdapter.getAllForAccount(accountId);
 
@@ -391,9 +394,9 @@ public class TransactionViewController implements Initializable {
             TransactionWrapper tw = new TransactionWrapper();
             tw.setTransaction(transaction);
             tw.setTags(FXCollections.observableArrayList(tags));
-            transactionWrapperList.add(tw);
+            tmpTransactionWrapperList.add(tw);
         }
-
+        transactionWrapperList.setAll(tmpTransactionWrapperList);
         transactionTableView.getSelectionModel().selectFirst();
     }
 
