@@ -70,7 +70,7 @@ public class TransactionDialog extends Dialog {
         for (TransactionTag tt : objects) {
             Tag tag = tagDbAdapter.getTag(tt.getTagId());
             sb.append(delim).append(tag.getName());
-            delim = ",";
+            delim = " ";
         }
 
         tagTF.setText(sb.toString());

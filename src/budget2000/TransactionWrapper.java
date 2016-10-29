@@ -6,6 +6,8 @@
 package budget2000;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -38,13 +40,22 @@ public class TransactionWrapper {
         return tags.get();
     }
     
-    public String getTagList() {
+    public String getTagListAsString() {
         StringBuilder sb = new StringBuilder();
         for (Tag tag : tags ){
             sb.append(tag.getName()).append(" ");
         }
-        return sb.toString();
+        return sb.toString().trim();
         
+    }
+    
+    public List<String> getTagList() {
+        ArrayList<String> tagList = new ArrayList<>();
+        
+        for (Tag tag : tags ){
+            tagList.add(tag.getName());
+        }
+        return tagList;  
     }
 
     public final void setTags(ObservableList value) {

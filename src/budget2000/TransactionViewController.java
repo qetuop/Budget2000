@@ -220,9 +220,10 @@ public class TransactionViewController implements Initializable {
             return;
         }
         
-        Transaction transaction = tw.getTransaction();
+        Transaction selectedTransaction = tw.getTransaction();
 
-        TransactionDialog dialog = new TransactionDialog(transaction);
+        // This should *NOT* modify the selectedTransaction
+        TransactionDialog dialog = new TransactionDialog(selectedTransaction);
         dialog.setTitle("Edit Transaction");
         dialog.setHeaderText("<header text>");
 
@@ -235,11 +236,53 @@ public class TransactionViewController implements Initializable {
             Transaction editTransaction = resultPair.getKey();
             ArrayList<String> stringTags = resultPair.getValue();
 
-            // tw modified in function
+            // TODO: if Display name or tag changed - prompt user to update 
+            // similar transactions (same name) if yes do them as well
+            Transaction origTrans = tw.getTransaction();            
+            List<String> origTagList = tw.getTagList();
+
+             // tw modified in function
             updateTransactionWrapper(tw, editTransaction, stringTags);
             
             transactionTableView.getSelectionModel().select(tw);
+                        
+            // compare origTw values with new ones
+            // If they displayName is different, then all other similar items need
+            // to update their displayName
+            if ( editTransaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
 
+                // get list of all transactions with same Name
+                ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
+
+                // TODO can i do a DB update and do all at once instead of indivudialy
+
+                // does this Name already have an existing mapping?
+
+                // prompt user to update - TODO display listing of items
+                 
+                // update
+                for ( Transaction updateTrans : matched ) {
+                    updateTrans.setDisplayName(editTransaction.getDisplayName());
+                    mTransactionDbAdapter.updateTransaction(updateTrans);
+                }
+
+                // add mapping to TBD table - TODO: what?!?
+                // so "GIANT 0196 GAITHERSBURG MD" maps to "Giant" and all future
+                // additions of "GIANT 0196 GAITHERSBURG MD" would automaticaly get
+                // "Giant" --> Enhacment #29
+            }
+            
+            // update Tags if changed - TODO: combine with Name check
+            if ( origTagList.equals(tw.getTagList()) == false ) {
+                // get the correct TW for this transaction                    
+                for ( TransactionWrapper transWrap : transactionWrapperList ) {
+                    if ( transWrap.getTransaction().getName().equals(editTransaction.getName()) ) {
+                        updateTransactionTags(transWrap, transWrap.getTransaction(), stringTags);
+                    }
+                }
+            }
+
+            // update the table
             update();
         });
     } // editTransaction
@@ -250,33 +293,7 @@ public class TransactionViewController implements Initializable {
     private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
         // need to check for success and handle failure
         mTransactionDbAdapter.updateTransaction(transaction);
-        Transaction origTrans = tw.getTransaction();
-
-        logger.info("compare: " + transaction.getDisplayName() + "/" + origTrans.getDisplayName()
-                + " = " + transaction.getDisplayName().equals(origTrans.getDisplayName()));
-                
-        // compare origTw values with new ones
-        // If they displayName is different, then all other similar items need
-        // to update their displayName
-        if ( transaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
-            
-            // get list of all transactions with same Name
-            ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
-            
-            // does this Name already have an existing mapping?
-            
-            // prompt user to update - TODO display listing of items
-             logger.info("**matched.size="+matched);
-            // update
-            for ( Transaction updateTrans : matched ) {
-                updateTrans.setDisplayName(transaction.getDisplayName());
-                mTransactionDbAdapter.updateTransaction(updateTrans);
-            }
-            
-            // add mapping to TBD table - TODO: what?!?
-            
-        }
-
+        
         // set the new values
         tw.setTransaction(transaction);
 
