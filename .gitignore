@@ -1,6 +1,0 @@
-*.db
-build
-dist
-nbproject/private
-*.bak
-src/resource/

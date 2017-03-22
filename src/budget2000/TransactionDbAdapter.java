@@ -257,4 +257,38 @@ logger.info(sql);
         }
     }
      */
+    
+    // SELECT ALL
+    public Boolean exists(Transaction transaction) {
+        Boolean exists = true;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d AND %s = '%s' AND %s = %d AND %s = %f;",                    
+                    THIS_TABLE, 
+                    COLUMN_TRANSACTION_ACCOUNT_ID, transaction.getAccountId(),
+                    COLUMN_TRANSACTION_NAME, transaction.getName(),
+                    COLUMN_TRANSACTION_DATE, transaction.getDate(),
+                    COLUMN_TRANSACTION_AMOUNT, transaction.getAmount()
+            );
+            //logger.info(sql);
+            //System.out.println("sql= " + sql);       
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // isBeforeFirst  returns false if the cursor is not before the first record or if there are no rows in the ResultSet.
+            if ( !rs.isBeforeFirst() ) {
+                //System.out.println("rs is empty");
+                exists = false;
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return exists;
+
+    } // getAllForAccount
+    
 } // TransactionDbAdapter

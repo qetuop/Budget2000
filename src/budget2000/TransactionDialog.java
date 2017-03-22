@@ -42,9 +42,10 @@ public class TransactionDialog extends Dialog {
     Transaction transaction = new Transaction();
 
     ArrayList<String> tags = new ArrayList<>();
-
+//"-?\\d*(\\.\\d{0,2})?"
+//"[^\\d+(\\.\\d{0,2})?$]"    
     TextFormatter<String> amountFormatter = new TextFormatter<String>(change -> {
-        change.setText(change.getText().replaceAll("[^\\d+(\\.\\d{0,2})?$]", ""));
+        change.setText(change.getText().replaceAll("[^-?\\d+(\\.\\d{0,2})?$]", ""));
         return change;
     });
 

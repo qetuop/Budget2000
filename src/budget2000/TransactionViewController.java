@@ -185,17 +185,24 @@ public class TransactionViewController implements Initializable {
                 ArrayList<Transaction> newTransList = i.readData(file);
                 newTransList.stream().forEach((t) -> {
 
+                    // see if this transaction already exists (account, name, date, amount)
+                    // for this account
                     t.setAccountId(budgetData.getSelectedAccount());
-                    int transactionId = mTransactionDbAdapter.createTransaction(t);
-                    t.setId(transactionId);
+                    //System.out.println(t + " exists = " + mTransactionDbAdapter.exists(t) );
+                    if ( mTransactionDbAdapter.exists(t) == false ) {
+                    
+                        t.setAccountId(budgetData.getSelectedAccount());
+                        int transactionId = mTransactionDbAdapter.createTransaction(t);
+                        t.setId(transactionId);
 
-                    TransactionWrapper tw = new TransactionWrapper();
-                    tw.setTransaction(t);
-                    tw.setTags(FXCollections.observableArrayList());
+                        TransactionWrapper tw = new TransactionWrapper();
+                        tw.setTransaction(t);
+                        tw.setTags(FXCollections.observableArrayList());
 
-                    transactionWrapperList.add(tw); // need to add to DB? or have list rebuild from DB?
+                        transactionWrapperList.add(tw); // need to add to DB? or have list rebuild from DB?
 
-                    //transactionTableView.getSelectionModel().select(t);
+                        //transactionTableView.getSelectionModel().select(t);
+                    }
                 });
             }
         }

@@ -69,7 +69,7 @@ public class Importer {
                 transaction.setAmount(bigDecimal.doubleValue());
 
                 transactionList.add(transaction);
-                System.out.println(transaction + "\n");
+                //System.out.println(transaction + "\n");
                 // }
                 //System.out.println("-------" + expenses.size() + "-----------");
 
