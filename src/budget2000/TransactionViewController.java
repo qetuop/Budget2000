@@ -22,14 +22,18 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import org.controlsfx.control.CheckComboBox;
 
 /**
  * FXML Controller class
@@ -62,9 +66,18 @@ public class TransactionViewController implements Initializable {
     @FXML
     //private TableColumn<String[], String> TransactionTagCol;
     private TableColumn<TransactionWrapper, String> TransactionTagCol;
+    
+    @FXML
+    private TextField transactionFilterSearch;
+    @FXML
+    private CheckComboBox transactionTypeCombo;
+    @FXML
+    private ChoiceBox transactionRangeChoice;
 
     final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
+    final ObservableList dateRangeList = FXCollections.observableArrayList(
+            "30 Days", "60 Days", "90 Days", "Custom Range");
+    
     /**
      * Initializes the controller class.
      */
@@ -123,6 +136,15 @@ public class TransactionViewController implements Initializable {
                 tableSelection(newValue.getTransaction());
             }
         });
+        
+        transactionRangeChoice.setItems(dateRangeList);
+        transactionRangeChoice.getSelectionModel().selectFirst();
+        transactionRangeChoice.setTooltip(new Tooltip("Select the range to display"));
+        transactionRangeChoice.getSelectionModel().selectedIndexProperty().addListener( 
+            (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+                System.out.println("range = " + dateRangeList.get(newValue.intValue()));
+        });
+
 
     } // initialize
 
@@ -218,6 +240,11 @@ public class TransactionViewController implements Initializable {
 //        }
     }
 
+     @FXML
+    protected void onFilterApply(ActionEvent event) {
+        logger.info("");
+    }
+    
     @FXML
     protected void editTransaction(ActionEvent event) {
         logger.info("");

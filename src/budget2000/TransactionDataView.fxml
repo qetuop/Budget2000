@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import org.controlsfx.control.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
@@ -9,13 +10,47 @@
 <?import javafx.scene.text.*?>
 <?import budget2000.*?>
 
-<SplitPane dividerPositions="0.5" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" 
-           xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="budget2000.TransactionViewController">
+<SplitPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="budget2000.TransactionViewController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <children>
                 <VBox prefHeight="398.0" prefWidth="296.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <FlowPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <TextField fx:id="transactionFilterSearch" promptText="Keyword,date,amount" />
+                              <CheckComboBox fx:id="transactionTypeCobmo" />
+                              <ChoiceBox fx:id="transactionRangeChoice" prefWidth="150.0" />
+                           </children>
+                        </FlowPane>
+                        <FlowPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Date Range">
+                                 <padding>
+                                    <Insets right="5.0" />
+                                 </padding>
+                              </Label>
+                              <DatePicker />
+                              <Label text="To">
+                                 <padding>
+                                    <Insets left="5.0" right="5.0" />
+                                 </padding>
+                              </Label>
+                              <DatePicker />
+                              <Button fx:id="transactionFilterApply" mnemonicParsing="false" onAction="#onFilterApply" text="Apply">
+                                 <FlowPane.margin>
+                                    <Insets left="5.0" />
+                                 </FlowPane.margin>
+                              </Button>
+                           </children>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </FlowPane>
+                     </children>
+                  </VBox>
                         <TableView fx:id="transactionTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onContextMenuRequested="#contextMenuRequested" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="TransactionDateCol" prefWidth="100.0" text="Date" />
