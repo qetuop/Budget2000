@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,6 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -69,14 +71,23 @@ public class TransactionViewController implements Initializable {
     
     @FXML
     private TextField transactionFilterSearch;
-    @FXML
-    private CheckComboBox transactionTypeCombo;
+    //@FXML
+    private CheckComboBox transactionTypeCombo;  // TODO this currently won't bind!
     @FXML
     private ChoiceBox transactionRangeChoice;
+    @FXML
+    private FlowPane filterTopFlow;
 
     final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    
     final ObservableList dateRangeList = FXCollections.observableArrayList(
             "30 Days", "60 Days", "90 Days", "Custom Range");
+    
+    ObservableList<String> filterTagList = FXCollections.observableArrayList("All");
+
+    public TransactionViewController() {
+        
+    }
     
     /**
      * Initializes the controller class.
@@ -136,7 +147,7 @@ public class TransactionViewController implements Initializable {
                 tableSelection(newValue.getTransaction());
             }
         });
-        
+
         transactionRangeChoice.setItems(dateRangeList);
         transactionRangeChoice.getSelectionModel().selectFirst();
         transactionRangeChoice.setTooltip(new Tooltip("Select the range to display"));
@@ -144,8 +155,19 @@ public class TransactionViewController implements Initializable {
             (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
                 System.out.println("range = " + dateRangeList.get(newValue.intValue()));
         });
-
-
+        
+        // TODO: can't curretnly bind the control in FXML, this is a workaround - needs set() function?
+        // https://bitbucket.org/controlsfx/controlsfx/issues/537/add-setitems-method-to-checkcombobox        
+        transactionTypeCombo = new CheckComboBox<String>(filterTagList);
+        //transactionTypeCombo.getItems().addAll(filterTagList); 
+        transactionTypeCombo.getCheckModel().check(0);
+        // TODO: eventully have list update as checked and not only on Apply button
+        transactionTypeCombo.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+            public void onChanged(ListChangeListener.Change<? extends String> c) {
+                System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems());         
+            }            
+        });           
+        filterTopFlow.getChildren().add(transactionTypeCombo);
     } // initialize
 
     void setBudgetData(BudgetData budgetData) {
@@ -165,6 +187,14 @@ public class TransactionViewController implements Initializable {
         mTransactionDbAdapter = new TransactionDbAdapter();
         ttDbAdapter = new TransactionTagDbAdapter();
         tagDbAdapter = new TagDbAdapter();
+        
+        // populate the Tag Fliter combo
+        ArrayList<Tag> tags = tagDbAdapter.getAll();
+        for (Tag tag : tags) {
+                if ( !filterTagList.contains(tag.getName())) {
+                    filterTagList.add(tag.getName());
+                }
+            }
 
         // query all DB items into the list and set the Tableview to this list, select first item
         update();
@@ -243,6 +273,18 @@ public class TransactionViewController implements Initializable {
      @FXML
     protected void onFilterApply(ActionEvent event) {
         logger.info("");
+        
+        // FILTER on Keyword / Date
+        System.out.println("Filter = " + transactionFilterSearch.getText());
+        
+        // FILTER on Date range
+        System.out.println("range = " + transactionRangeChoice.getSelectionModel().getSelectedIndex()
+                + ", " + transactionRangeChoice.getSelectionModel().getSelectedItem());
+        
+        // FILTER on Tag
+        System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
+        
+        
     }
     
     @FXML
@@ -345,6 +387,11 @@ public class TransactionViewController implements Initializable {
 
             // CASCADE will delete from TT table
             tagDbAdapter.delete(tag.getId());
+            
+            // TODO: this doesn't catch deleted tags!
+            if ( filterTagList.contains(tag.getName())) {
+                filterTagList.remove(tag.getName());
+            }
         }
 
         ArrayList<Tag> tags = new ArrayList<>();
@@ -357,6 +404,11 @@ public class TransactionViewController implements Initializable {
 
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
             ttDbAdapter.createTransactionTag(tt);
+            
+            // 
+            if ( !filterTagList.contains(stringTag)) {
+                filterTagList.add(stringTag);
+            }
         }
 
         tw.setTags(FXCollections.observableArrayList(tags));
@@ -432,6 +484,8 @@ public class TransactionViewController implements Initializable {
 //        ArrayList<Tag> tags = tagDbAdapter.getAll();
 //        return tags;
 //    }
+    
+    // WHAT is the main purpose of this function?  When should it be called?
     private void update() {
         Integer accountId = budgetData.getSelectedAccount();   
         
@@ -451,7 +505,7 @@ public class TransactionViewController implements Initializable {
 
             // Tags
             for (TransactionTag tt : ttList) {
-                tags.add(tagDbAdapter.getTag(tt.getTagId()));
+                tags.add(tagDbAdapter.getTag(tt.getTagId()));                             
             }
 
             TransactionWrapper tw = new TransactionWrapper();
