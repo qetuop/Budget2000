@@ -98,7 +98,7 @@ public class AbstractDbAdapter {
     private static final String CREATE_TABLE_TAG = "CREATE TABLE IF NOT EXISTS "
             + TABLE_TAG + "("
             + COLUMN_ID + " integer not null primary key autoincrement, "
-            + COLUMN_TAG_NAME + " text "            
+            + COLUMN_TAG_NAME + " text unique "            
             + ");";  // no trailing ';'
     
     private static final String CREATE_TABLE_TRANSACTION_TAG = "CREATE TABLE IF NOT EXISTS "

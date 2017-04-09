@@ -100,7 +100,34 @@ logger.info(sql);
 
         return tag;
 
-    } // getUser
+    } // get
+    
+    // READ one - name
+    public Tag getTagByName(String tagName) {
+        Tag tag = null;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = '%s';",
+                    THIS_TABLE, COLUMN_TAG_NAME, tagName);
+            logger.info(sql);
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            if (rs.next()) {
+                tag = cursorToObject(rs);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return tag;
+
+    } // getName
     
     // SELECT ALL
     public ArrayList<Tag> getAll() {

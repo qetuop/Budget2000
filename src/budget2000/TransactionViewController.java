@@ -318,7 +318,7 @@ public class TransactionViewController implements Initializable {
             List<String> origTagList = tw.getTagList();
 
              // tw modified in function
-            updateTransactionWrapper(tw, editTransaction, stringTags);
+            //updateTransactionWrapper(tw, editTransaction, stringTags);
             
             transactionTableView.getSelectionModel().select(tw);
                         
@@ -346,17 +346,22 @@ public class TransactionViewController implements Initializable {
                 // so "GIANT 0196 GAITHERSBURG MD" maps to "Giant" and all future
                 // additions of "GIANT 0196 GAITHERSBURG MD" would automaticaly get
                 // "Giant" --> Enhacment #29
-            }
+            } // DisplayName changed
             
             // update Tags if changed - TODO: combine with Name check
-            if ( origTagList.equals(tw.getTagList()) == false ) {
+            //if ( origTagList.equals(tw.getTagList()) == false ) {
+            if ( origTagList.equals(stringTags) == false ) {    
+
                 // get the correct TW for this transaction                    
-                for ( TransactionWrapper transWrap : transactionWrapperList ) {
-                    if ( transWrap.getTransaction().getName().equals(editTransaction.getName()) ) {
-                        updateTransactionTags(transWrap, transWrap.getTransaction(), stringTags);
-                    }
+                TransactionWrapper transWrap = transactionWrapperList.stream()
+                        .filter(wrap -> wrap.getTransaction().getName().equals(editTransaction.getName()))
+                        .findFirst()
+                        .get();
+                System.out.println("transWrap " + transWrap);  
+                if ( transWrap != null ) {
+                    updateTransactionTags(transWrap, transWrap.getTransaction(), stringTags);
                 }
-            }
+            } // Tag changed
 
             // update the table
             update();
@@ -367,6 +372,7 @@ public class TransactionViewController implements Initializable {
     // transaction = updated transaction info
     // stringTags = whatever came out of the edit dialog
     private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
+        logger.info("");
         // need to check for success and handle failure
         mTransactionDbAdapter.updateTransaction(transaction);
         
@@ -382,6 +388,8 @@ public class TransactionViewController implements Initializable {
         logger.info("");
 
         // TODO: do comparisons and shit
+        
+        // For now, delete ALL existing tags
         for (Object o : tw.getTags()) {
             Tag tag = (Tag) o;
 
@@ -394,21 +402,31 @@ public class TransactionViewController implements Initializable {
             }
         }
 
+        // Add ALL tags
         ArrayList<Tag> tags = new ArrayList<>();
 
         for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
-            tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
-
-            tags.add(tag);
+            
+            // Check for existing Tag?
+            Tag tmpTag = tagDbAdapter.getTagByName(stringTag);
+            if ( tmpTag == null ) {
+                tagDbAdapter.createTag(tag);
+                tags.add(tag);
+                if ( !filterTagList.contains(stringTag)) {
+                    filterTagList.add(stringTag);
+                }          
+            }
+            else {
+                tag = tmpTag;
+            }
+             // verfiy doesn't already exist or will DB not accept dupes?
+     
+            // Handle  createTag java.sql.SQLException: [SQLITE_CONSTRAINT]  Abort due to constraint violation (UNIQUE constraint failed: tag.name)
+            // OK if tag name exists - don't want a new tag row but still need create a TT entry
 
             TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
-            ttDbAdapter.createTransactionTag(tt);
-            
-            // 
-            if ( !filterTagList.contains(stringTag)) {
-                filterTagList.add(stringTag);
-            }
+            ttDbAdapter.createTransactionTag(tt);   
         }
 
         tw.setTags(FXCollections.observableArrayList(tags));
