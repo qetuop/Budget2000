@@ -160,5 +160,38 @@ logger.info("SQL:" +sql);
 
         return objects;
 
-    } // getUsers
+    } // 
+    
+    // SELECT ALL  for a transaction id
+    public ArrayList<TransactionTag> getAllForTag(Integer _id) {
+        ArrayList<TransactionTag> objects = new ArrayList<>();
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_TRANSACTION_TAG_TAG_ID, _id);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            while (rs.next()) {
+
+                TransactionTag x = cursorToObject(rs);
+                if (x != null) {
+                    objects.add(x);
+                }
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return objects;
+
+    } // 
+
+   
+    
 }
