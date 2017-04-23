@@ -69,21 +69,43 @@ public class TransactionViewController implements Initializable {
     //private TableColumn<String[], String> TransactionTagCol;
     private TableColumn<TransactionWrapper, String> TransactionTagCol;
     
+    // ------- Filter Panel ----------
+    private ObservableList<String> filterTagList = FXCollections.observableArrayList();
+    
     @FXML
     private TextField transactionFilterSearch;
+    
     //@FXML
     private CheckComboBox transactionTypeCombo;  // TODO this currently won't bind!
+    
     @FXML
     private ChoiceBox transactionRangeChoice;
+    
     @FXML
     private FlowPane filterTopFlow;
 
     final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     
     final ObservableList dateRangeList = FXCollections.observableArrayList(
-            "30 Days", "60 Days", "90 Days", "Custom Range");
+            "30 Days", "60 Days", "90 Days", "Custom Range");    
+    // ------- Filter Panel ----------
     
-    ObservableList<String> filterTagList = FXCollections.observableArrayList("All");
+    
+    // ------- Details Panel ----------
+    private ObservableList<TransactionDetailWrapper> transactionDetailWrapperList = FXCollections.observableArrayList();
+    
+    @FXML
+    private TableView<TransactionDetailWrapper> transactionDetailTableView;
+    
+    @FXML
+    private TableColumn<TransactionDetailWrapper, String> transactionDetailTagCol;
+    
+    //@FXML
+    //private TableColumn<TransactionWrapper, String> transactionDetailAmountCol;
+    
+    // ------- Details Panel ----------
+    
+    
 
     public TransactionViewController() {
         
@@ -95,7 +117,16 @@ public class TransactionViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         logger.info("");
+        
+        // ------- Details Pane ----------
+        
+        // tmp
+        transactionDetailTableView.setItems(transactionDetailWrapperList);       
+        transactionDetailTagCol.setCellValueFactory(new PropertyValueFactory<TransactionDetailWrapper,String>("tag"));
 
+        // ------- Details Pane ----------
+
+        
         TransactionNameCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionWrapper, String> p)
                 -> (ObservableValue<String>) p.getValue().getTransaction().getNameProperty());
 
@@ -148,6 +179,7 @@ public class TransactionViewController implements Initializable {
             }
         });
 
+        // ------- Filter Panel ----------
         transactionRangeChoice.setItems(dateRangeList);
         transactionRangeChoice.getSelectionModel().selectFirst();
         transactionRangeChoice.setTooltip(new Tooltip("Select the range to display"));
@@ -156,19 +188,52 @@ public class TransactionViewController implements Initializable {
                 System.out.println("range = " + dateRangeList.get(newValue.intValue()));
         });
         
+        
+        
         // TODO: can't curretnly bind the control in FXML, this is a workaround - needs set() function?
         // https://bitbucket.org/controlsfx/controlsfx/issues/537/add-setitems-method-to-checkcombobox        
-        transactionTypeCombo = new CheckComboBox<String>(filterTagList);
+        transactionTypeCombo = new CheckComboBox<>(filterTagList);
+        
         //transactionTypeCombo.getItems().addAll(filterTagList); 
         transactionTypeCombo.getCheckModel().check(0);
+        
         // TODO: eventully have list update as checked and not only on Apply button
         transactionTypeCombo.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
             public void onChanged(ListChangeListener.Change<? extends String> c) {
-                System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems());         
+                System.out.println("onChanged: " + transactionTypeCombo.getCheckModel().getCheckedItems());   
+                
+                // TODO: update details pane with tag selection
+                updateDetails();
             }            
         });           
         filterTopFlow.getChildren().add(transactionTypeCombo);
+        
+        // TODO does not trigger the callback, where can i add this?
+        filterTagList.add("ALL");
+        
+        // ------- Filter Panel ----------
+        
+        
     } // initialize
+    
+    void updateDetails() {
+        logger.info("");
+        ObservableList<String> checkedTags = transactionTypeCombo.getCheckModel().getCheckedItems();
+        
+        // update tag col with checked items - clear out existing list or check for dupes
+        transactionDetailWrapperList.clear();
+        
+        for (String tag : checkedTags) {
+            transactionDetailWrapperList.add(new TransactionDetailWrapper(tag));
+            
+            // calculate total amount for this tag (and date range)
+            //ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForTag(tag);
+        }
+        
+        
+        
+        // udate amount col with value
+    }
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
