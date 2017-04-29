@@ -198,9 +198,9 @@ public class TransactionViewController implements Initializable {
         // https://bitbucket.org/controlsfx/controlsfx/issues/537/add-setitems-method-to-checkcombobox        
         transactionTypeCombo = new CheckComboBox<>(filterTags);
         
-        //transactionTypeCombo.getItems().addAll(filterTagList); 
-        transactionTypeCombo.getCheckModel().check(0);
-        
+        // TODO: where/how to call this?
+        //transactionTypeCombo.getCheckModel().check(0);
+         
         // TODO: eventully have list update as checked and not only on Apply button
         transactionTypeCombo.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
             public void onChanged(ListChangeListener.Change<? extends String> c) {
@@ -208,13 +208,13 @@ public class TransactionViewController implements Initializable {
                 
                 // TODO: update details pane with tag selection
                 updateDetails();
+                
+                // TODO: for now use the Apply button press to do the filtering
+                // onFilterApply
             }            
         });           
         filterTopFlow.getChildren().add(transactionTypeCombo);
-        
-        // TODO does not trigger the callback, where can i add this?
-        //filterTagList.add("ALL");
-        
+
         // ------- Filter Panel ----------
         
         
@@ -248,13 +248,58 @@ public class TransactionViewController implements Initializable {
               
     
             // calculate total amount for this tag (and date range)
-            //ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForTag(tag);
-        }
-        
-        
-        
+            //ArrayList<Transaction> matched = mTransactionDbAdapter.getTransaction();
+        }                       
         // udate amount col with value
-    }
+        
+    } // updateDetails
+    
+    @FXML
+    protected void onFilterApply(ActionEvent event) {
+        logger.info("");
+        
+        // FILTER on Keyword / Date
+        System.out.println("Filter = " + transactionFilterSearch.getText());
+        
+        // FILTER on Date range
+        System.out.println("range = " + transactionRangeChoice.getSelectionModel().getSelectedIndex()
+                + ", " + transactionRangeChoice.getSelectionModel().getSelectedItem());
+        
+        // FILTER on Tag
+        System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
+        ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
+        for ( String tagStr : checkedFilterTags ){
+            
+            ArrayList<TransactionTag> transTags;
+            
+            // Get list of all TransTag mappings for this Tag
+            if ( tagStr.compareTo("ALL") == 0 ) {
+                transTags = ttDbAdapter.getAll();     
+            }
+            else {
+                // get tag id
+                Tag tag = tagDbAdapter.getTagByName(tagStr);
+            
+                // get all transactionTag  with this tag ID
+                transTags = ttDbAdapter.getAllForTag(tag.getId());
+            }
+                        
+            // get all transactions this TT mapping refers to
+            for (TransactionTag transTag : transTags ) {
+                Integer transId = transTag.getTransactionId();
+                Transaction trans = this.mTransactionDbAdapter.getTransaction(transId);
+                
+                if ( trans != null ) {
+                    System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
+                }
+                else {
+                    System.out.println("null trans??, transId=" + transId + ", transTagId="+transTag.getId());
+                }
+            }
+        }
+                
+    } // onFilterApply
+    
 
     void setBudgetData(BudgetData budgetData) {
         this.budgetData = budgetData;
@@ -356,42 +401,7 @@ public class TransactionViewController implements Initializable {
 //        }
     }
 
-     @FXML
-    protected void onFilterApply(ActionEvent event) {
-        logger.info("");
-        
-        // FILTER on Keyword / Date
-        System.out.println("Filter = " + transactionFilterSearch.getText());
-        
-        // FILTER on Date range
-        System.out.println("range = " + transactionRangeChoice.getSelectionModel().getSelectedIndex()
-                + ", " + transactionRangeChoice.getSelectionModel().getSelectedItem());
-        
-        // FILTER on Tag
-        System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
-        ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
-        for ( String tagStr : checkedFilterTags ){
-            
-            // Handle 'All' special
-            if ( tagStr.compareTo("ALL") == 0) {
-                continue;
-            }
-            
-            Tag tag = tagDbAdapter.getTagByName(tagStr);
-            
-            // get all transaction Tag mappings for this tag
-            ArrayList<TransactionTag> transTags = ttDbAdapter.getAllForTag(tag.getId());
-            
-            // get all transactions this TT mapping refers to
-            for (TransactionTag transTag : transTags ) {
-                Integer transId = transTag.getId();
-                Transaction trans = this.mTransactionDbAdapter.getTransaction(transId);
-                
-                System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
-            }
-        }
-                
-    } // onFilterApply
+    
     
     @FXML
     protected void editTransaction(ActionEvent event) {
@@ -425,9 +435,11 @@ public class TransactionViewController implements Initializable {
             Transaction origTrans = tw.getTransaction();            
             List<String> origTagList = tw.getTagList();
 
-             // tw modified in function
-            //updateTransactionWrapper(tw, editTransaction, stringTags);
+             // Updte *this* transaction - TODO, need to verify this function works as expected
+             // I think the tags part will be updated below - not sure if good idea
+            updateTransactionWrapper(tw, editTransaction, stringTags);
             
+            // TODO - what is this for?
             transactionTableView.getSelectionModel().select(tw);
                         
             // compare origTw values with new ones
@@ -465,6 +477,24 @@ public class TransactionViewController implements Initializable {
         });
     } // editTransaction
 
+    // tw = original transWrapper (trans + tags)
+    // transaction = updated transaction info
+    // stringTags = whatever came out of the edit dialog
+    private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
+        logger.info("");
+        // need to check for success and handle failure
+        mTransactionDbAdapter.updateTransaction(transaction);
+        
+        // set the new values
+        tw.setTransaction(transaction);
+
+        // TODO: Why don't i need this?
+        
+        // must call updateTransactionTags - check for changes
+       // updateTransactionTags(tw, transaction, stringTags);
+    }
+
+    
     @FXML
     protected void addTransaction(ActionEvent event) {
         logger.info("");
@@ -598,5 +628,5 @@ public class TransactionViewController implements Initializable {
         //transactionWrapperList.setAll(tmpTransactionWrapperList);
         //transactionTableView.getSelectionModel().selectFirst();
     }
-
+    
 } // TransactionViewController
