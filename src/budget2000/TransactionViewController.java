@@ -11,15 +11,18 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -70,7 +73,8 @@ public class TransactionViewController implements Initializable {
     private TableColumn<TransactionWrapper, String> TransactionTagCol;
     
     // ------- Filter Panel ----------
-    private ObservableList<String> filterTagList = FXCollections.observableArrayList();
+    // TODO: replace with SET?  don't have to check for existing items? -->combobox wants a list
+    private ObservableList<String> filterTags = FXCollections.observableArrayList("ALL");
     
     @FXML
     private TextField transactionFilterSearch;
@@ -142,7 +146,7 @@ public class TransactionViewController implements Initializable {
             property.setValue(numberFormat.format(p.getValue().getTransaction().getAmmountProperty().doubleValue()));
             return property;
         });
-
+      
         TransactionTagCol.setCellValueFactory(new PropertyValueFactory<TransactionWrapper, String>("tagList"));
 
         // TODO: please make this right
@@ -192,7 +196,7 @@ public class TransactionViewController implements Initializable {
         
         // TODO: can't curretnly bind the control in FXML, this is a workaround - needs set() function?
         // https://bitbucket.org/controlsfx/controlsfx/issues/537/add-setitems-method-to-checkcombobox        
-        transactionTypeCombo = new CheckComboBox<>(filterTagList);
+        transactionTypeCombo = new CheckComboBox<>(filterTags);
         
         //transactionTypeCombo.getItems().addAll(filterTagList); 
         transactionTypeCombo.getCheckModel().check(0);
@@ -209,7 +213,7 @@ public class TransactionViewController implements Initializable {
         filterTopFlow.getChildren().add(transactionTypeCombo);
         
         // TODO does not trigger the callback, where can i add this?
-        filterTagList.add("ALL");
+        //filterTagList.add("ALL");
         
         // ------- Filter Panel ----------
         
@@ -223,9 +227,26 @@ public class TransactionViewController implements Initializable {
         // update tag col with checked items - clear out existing list or check for dupes
         transactionDetailWrapperList.clear();
         
-        for (String tag : checkedTags) {
-            transactionDetailWrapperList.add(new TransactionDetailWrapper(tag));
+        for (String tagName : checkedTags) {
+            transactionDetailWrapperList.add(new TransactionDetailWrapper(tagName));
             
+            ArrayList<TransactionTag> transTags;
+            
+            // If tag = "ALL" get all
+            if ( tagName.compareTo("ALL") == 0 ) {
+                transTags = ttDbAdapter.getAll();     
+            }
+            else {
+                // get tag id
+                Tag tag = tagDbAdapter.getTagByName(tagName);
+            
+                // get all transactionTag  with this tag ID
+                transTags = ttDbAdapter.getAllForTag(tag.getId());
+            }
+            
+            System.out.println("transTags size= " + transTags.size());
+              
+    
             // calculate total amount for this tag (and date range)
             //ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForTag(tag);
         }
@@ -256,8 +277,8 @@ public class TransactionViewController implements Initializable {
         // populate the Tag Fliter combo
         ArrayList<Tag> tags = tagDbAdapter.getAll();
         for (Tag tag : tags) {
-                if ( !filterTagList.contains(tag.getName())) {
-                    filterTagList.add(tag.getName());
+                if ( !filterTags.contains(tag.getName())) {
+                    filterTags.add(tag.getName());
                 }
             }
 
@@ -362,6 +383,8 @@ public class TransactionViewController implements Initializable {
         }
         
         Transaction selectedTransaction = tw.getTransaction();
+        
+        System.out.println("EDITING TRANS = " + selectedTransaction.getDisplayName() );
 
         // This should *NOT* modify the selectedTransaction
         TransactionDialog dialog = new TransactionDialog(selectedTransaction);
@@ -390,15 +413,13 @@ public class TransactionViewController implements Initializable {
             // compare origTw values with new ones
             // If they displayName is different, then all other similar items need
             // to update their displayName
-            if ( editTransaction.getDisplayName().equals(origTrans.getDisplayName()) == false ) {
+            if ( editTransaction.getDisplayName().compareTo(origTrans.getDisplayName()) > 0 ) {
 
                 // get list of all transactions with same Name
                 ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
 
                 // TODO can i do a DB update and do all at once instead of indivudialy
-
                 // does this Name already have an existing mapping?
-
                 // prompt user to update - TODO display listing of items
                  
                 // update
@@ -413,89 +434,15 @@ public class TransactionViewController implements Initializable {
                 // "Giant" --> Enhacment #29
             } // DisplayName changed
             
-            // update Tags if changed - TODO: combine with Name check
-            //if ( origTagList.equals(tw.getTagList()) == false ) {
+            // update Tags if changed - TODO: combine with Name check?
             if ( origTagList.equals(stringTags) == false ) {    
-
-                // get the correct TW for this transaction                    
-                TransactionWrapper transWrap = transactionWrapperList.stream()
-                        .filter(wrap -> wrap.getTransaction().getName().equals(editTransaction.getName()))
-                        .findFirst()
-                        .get();
-                System.out.println("transWrap " + transWrap);  
-                if ( transWrap != null ) {
-                    updateTransactionTags(transWrap, transWrap.getTransaction(), stringTags);
-                }
+                ArrayList<Tag> tags = createTransactionTags(tw.getTransaction(), stringTags);
             } // Tag changed
 
             // update the table
             update();
         });
     } // editTransaction
-
-    // tw = original transWrapper (trans + tags)
-    // transaction = updated transaction info
-    // stringTags = whatever came out of the edit dialog
-    private void updateTransactionWrapper(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
-        logger.info("");
-        // need to check for success and handle failure
-        mTransactionDbAdapter.updateTransaction(transaction);
-        
-        // set the new values
-        tw.setTransaction(transaction);
-
-        // must call updateTransactionTags - check for changes
-        updateTransactionTags(tw, transaction, stringTags);
-
-    }
-
-    private void updateTransactionTags(TransactionWrapper tw, Transaction transaction, ArrayList<String> stringTags) {
-        logger.info("");
-
-        // TODO: do comparisons and shit
-        
-        // For now, delete ALL existing tags
-        for (Object o : tw.getTags()) {
-            Tag tag = (Tag) o;
-
-            // CASCADE will delete from TT table
-            tagDbAdapter.delete(tag.getId());
-            
-            // TODO: this doesn't catch deleted tags!
-            if ( filterTagList.contains(tag.getName())) {
-                filterTagList.remove(tag.getName());
-            }
-        }
-
-        // Add ALL tags
-        ArrayList<Tag> tags = new ArrayList<>();
-
-        for (String stringTag : stringTags) {
-            Tag tag = new Tag(stringTag);
-            
-            // Check for existing Tag?
-            Tag tmpTag = tagDbAdapter.getTagByName(stringTag);
-            if ( tmpTag == null ) {
-                tagDbAdapter.createTag(tag);
-                tags.add(tag);
-                if ( !filterTagList.contains(stringTag)) {
-                    filterTagList.add(stringTag);
-                }          
-            }
-            else {
-                tag = tmpTag;
-            }
-             // verfiy doesn't already exist or will DB not accept dupes?
-     
-            // Handle  createTag java.sql.SQLException: [SQLITE_CONSTRAINT]  Abort due to constraint violation (UNIQUE constraint failed: tag.name)
-            // OK if tag name exists - don't want a new tag row but still need create a TT entry
-
-            TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
-            ttDbAdapter.createTransactionTag(tt);   
-        }
-
-        tw.setTags(FXCollections.observableArrayList(tags));
-    }
 
     @FXML
     protected void addTransaction(ActionEvent event) {
@@ -538,6 +485,8 @@ public class TransactionViewController implements Initializable {
     /**
      * This will take a Transaction object and list of strings and create
      * TransactionTag entries and return a list of Tag objects
+     * 
+     * It will delete any existing TransactionTags
      *
      * @param transaction
      * @param stringTags
@@ -545,28 +494,51 @@ public class TransactionViewController implements Initializable {
      */
     private ArrayList<Tag> createTransactionTags(Transaction transaction, ArrayList<String> stringTags) {
         logger.info("");
-
         ArrayList<Tag> tags = new ArrayList<>();
+        
+        Set<String> hs = new HashSet<>();
+        hs.addAll(stringTags);
+        stringTags.clear();
+        stringTags.addAll(hs);
+        
+        // delete all TransTag mappings for this transaction
+       // TODO: see if it will auto delete orphened tags --> NO, but i don't
+       // want it to.  TAGS should persist, even if no transaction uses them
+       ttDbAdapter.deleteTransaction(transaction.getId());
 
         for (String stringTag : stringTags) {
             Tag tag = new Tag(stringTag);
-            tagDbAdapter.createTag(tag); // verfiy doesn't already exist or will DB not accept dupes?
+
+            // Check for existing Tag
+            Tag tmpTag = tagDbAdapter.getTagByName(stringTag);
+            
+            if ( tmpTag == null ) {
+                tagDbAdapter.createTag(tag);   
+                
+                 if ( !filterTags.contains(tag.getName())) {
+                    filterTags.add(tag.getName());
+                 }    
+                 
+            }
+            else {
+                tag = tmpTag;
+            }
+            
             tags.add(tag);
-            System.out.println("ttDbAdapter.conn " + ttDbAdapter.conn);
-            TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
-            ttDbAdapter.createTransactionTag(tt);
-        }
+  
+            // Don't allow multiple TT  entries :  Trans -> (TT) -> Tag
+            // a trans should only link to a particular tag once
+            // TODO: can likely remove this if i'm ALWAYS deleting TTs above
+            Boolean exists = ttDbAdapter.exists(transaction, tag);
+
+            if ( !exists ) {
+                TransactionTag tt = new TransactionTag(transaction.getId(), tag.getId());
+                ttDbAdapter.createTransactionTag(tt);
+            }
+        } // for each stringTag
 
         return tags;
     }
-
-//    public ArrayList<Tag> getTags(Integer transactionId) {
-//        //Integer transactionId = budgetData.getSelectedTransaction();
-//        TagDbAdapter tagDbAdapter = new TagDbAdapter();
-//
-//        ArrayList<Tag> tags = tagDbAdapter.getAll();
-//        return tags;
-//    }
     
     // WHAT is the main purpose of this function?  When should it be called?
     private void update() {

@@ -191,7 +191,57 @@ logger.info("SQL:" +sql);
         return objects;
 
     } // 
-
-   
     
+    
+    // TODO: can i create the DB schema to prevent duplicates from being added
+    // in the first place?
+    
+    // 
+    public Boolean exists(Transaction transaction, Tag tag) {
+        Boolean exists = true;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d AND %s  = %d;",                    
+                    THIS_TABLE, 
+                    COLUMN_TRANSACTION_TAG_TRANSACTION_ID, transaction.getId(),
+                    COLUMN_TRANSACTION_TAG_TAG_ID, tag.getId()
+            );
+            //logger.info(sql);
+            //System.out.println("sql= " + sql);       
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // isBeforeFirst  returns false if the cursor is not before the first record or if there are no rows in the ResultSet.
+            if ( !rs.isBeforeFirst() ) {
+                //System.out.println("rs is empty");
+                exists = false;
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            System.err.println(this.getClass().getName() + ": " + e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return exists;
+
+    } // exists
+    
+    // DELETE all entries with this transaction ID
+    public void deleteTransaction(Integer _id) {
+       try {            
+            String sql = String.format("DELETE FROM %s WHERE %s=%d;",
+                    THIS_TABLE, COLUMN_TRANSACTION_TAG_TRANSACTION_ID, _id);
+            
+            logger.info("SQL:" +sql);
+
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(sql); // executeUpdate
+            stmt.close();
+            conn.commit();
+        } catch (Exception e) {
+            logger.warning(e.toString());
+        }
+
+    } // 
 }
