@@ -369,9 +369,29 @@ public class TransactionViewController implements Initializable {
         
         // FILTER on Tag
         System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
-        
-        
-    }
+        ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
+        for ( String tagStr : checkedFilterTags ){
+            
+            // Handle 'All' special
+            if ( tagStr.compareTo("ALL") == 0) {
+                continue;
+            }
+            
+            Tag tag = tagDbAdapter.getTagByName(tagStr);
+            
+            // get all transaction Tag mappings for this tag
+            ArrayList<TransactionTag> transTags = ttDbAdapter.getAllForTag(tag.getId());
+            
+            // get all transactions this TT mapping refers to
+            for (TransactionTag transTag : transTags ) {
+                Integer transId = transTag.getId();
+                Transaction trans = this.mTransactionDbAdapter.getTransaction(transId);
+                
+                System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
+            }
+        }
+                
+    } // onFilterApply
     
     @FXML
     protected void editTransaction(ActionEvent event) {
@@ -413,10 +433,11 @@ public class TransactionViewController implements Initializable {
             // compare origTw values with new ones
             // If they displayName is different, then all other similar items need
             // to update their displayName
-            if ( editTransaction.getDisplayName().compareTo(origTrans.getDisplayName()) > 0 ) {
+            if ( editTransaction.getDisplayName().compareTo(origTrans.getDisplayName()) != 0 ) {
 
                 // get list of all transactions with same Name
                 ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
+                System.out.println("matched = " +matched.size());
 
                 // TODO can i do a DB update and do all at once instead of indivudialy
                 // does this Name already have an existing mapping?

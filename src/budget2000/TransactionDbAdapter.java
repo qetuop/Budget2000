@@ -5,10 +5,12 @@
  */
 package budget2000;
 
+import static budget2000.AbstractDbAdapter.conn;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 /**
  *
@@ -150,6 +152,34 @@ logger.info(sql);
 
     } // getUser
      */
+    
+    // READ one - id
+    public Transaction getTransaction(Integer _id) {
+        Transaction transaction = null;
+
+        try {
+            Statement stmt = conn.createStatement();
+            String sql = String.format("SELECT * FROM %s WHERE %s = %d;",
+                    THIS_TABLE, COLUMN_ID, _id);
+
+            ResultSet rs = stmt.executeQuery(sql); // executeQuery
+
+            // should only be one. i hope. whats a better way
+            if (rs.next()) {
+                transaction = cursorToTransaction(rs);
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getClass().getName() + ": " + e.getMessage());
+        }
+
+        return transaction;
+
+    } // get
+    
     // SELECT ALL
     public ArrayList<Transaction> getAll() {
         ArrayList<Transaction> users = new ArrayList<>();
