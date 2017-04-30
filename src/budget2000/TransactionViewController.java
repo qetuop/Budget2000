@@ -483,7 +483,6 @@ public class TransactionViewController implements Initializable {
 
                 // get list of all transactions with same Name
                 ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
-                System.out.println("matched = " +matched.size());
 
                 // TODO can i do a DB update and do all at once instead of indivudialy
                 // does this Name already have an existing mapping?
@@ -504,6 +503,26 @@ public class TransactionViewController implements Initializable {
             // update Tags if changed - TODO: combine with Name check?
             if ( origTagList.equals(stringTags) == false ) {    
                 ArrayList<Tag> tags = createTransactionTags(tw.getTransaction(), stringTags);
+                
+                // TODO: need to apply to all similar entries
+                
+                // get list of all transactions with same Name
+                ArrayList<Transaction> matched = mTransactionDbAdapter.getAllForName(origTrans.getName());
+
+                // get all TT for each transaction
+                for ( Transaction trans : matched ) {
+                    ArrayList<TransactionTag> transTags = this.ttDbAdapter.getAllForTransaction(trans.getId());
+                    
+                    // Delete each TT
+                    for ( TransactionTag tTag : transTags ) {
+                        ttDbAdapter.delete(tTag.getId());
+                    }
+                    
+                    // Add new tag
+                    createTransactionTags(trans, stringTags);
+                    
+                    // pray
+                }
             } // Tag changed
 
             // update the table
