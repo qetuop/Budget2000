@@ -104,8 +104,8 @@ public class TransactionViewController implements Initializable {
     @FXML
     private TableColumn<TransactionDetailWrapper, String> transactionDetailTagCol;
     
-    //@FXML
-    //private TableColumn<TransactionWrapper, String> transactionDetailAmountCol;
+    @FXML
+    private TableColumn<TransactionDetailWrapper, String> transactionDetailAmountCol;
     
     // ------- Details Panel ----------
     
@@ -123,11 +123,19 @@ public class TransactionViewController implements Initializable {
         logger.info("");
         
         // ------- Details Pane ----------
+       
+        transactionDetailTagCol.setCellValueFactory(new PropertyValueFactory<>("tag"));
+        //transactionDetailAmountCol.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        // OR THIS?
+        transactionDetailAmountCol.setCellValueFactory((TableColumn.CellDataFeatures<TransactionDetailWrapper, String> p)
+                -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            NumberFormat numberFormat = NumberFormat.getInstance();
+            property.setValue(numberFormat.format(p.getValue().getAmmountProperty().doubleValue()));
+            return property;
+        });
         
-        // tmp
         transactionDetailTableView.setItems(transactionDetailWrapperList);       
-        transactionDetailTagCol.setCellValueFactory(new PropertyValueFactory<TransactionDetailWrapper,String>("tag"));
-
         // ------- Details Pane ----------
 
         
@@ -207,7 +215,7 @@ public class TransactionViewController implements Initializable {
                 System.out.println("onChanged: " + transactionTypeCombo.getCheckModel().getCheckedItems());   
                 
                 // TODO: update details pane with tag selection
-                updateDetails();
+                //updateDetails();
                 
                 // TODO: for now use the Apply button press to do the filtering
                 // onFilterApply
@@ -228,7 +236,9 @@ public class TransactionViewController implements Initializable {
         transactionDetailWrapperList.clear();
         
         for (String tagName : checkedTags) {
-            transactionDetailWrapperList.add(new TransactionDetailWrapper(tagName));
+            TransactionDetailWrapper tdw = new TransactionDetailWrapper(tagName, 0.0);
+            System.out.println("tdw="+tdw.getTag() + ":" + tdw);
+            transactionDetailWrapperList.add(tdw);
             
             ArrayList<TransactionTag> transTags;
             
@@ -266,6 +276,8 @@ public class TransactionViewController implements Initializable {
                 + ", " + transactionRangeChoice.getSelectionModel().getSelectedItem());
         
         // FILTER on Tag
+        transactionDetailWrapperList.clear();
+        
         System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
         ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
         for ( String tagStr : checkedFilterTags ){
@@ -283,19 +295,41 @@ public class TransactionViewController implements Initializable {
                 // get all transactionTag  with this tag ID
                 transTags = ttDbAdapter.getAllForTag(tag.getId());
             }
-                        
-            // get all transactions this TT mapping refers to
+                       
+            Double currAmount = 0.0;
+            
+            // get all transactions this TT mapping refers to - sum the amounts
             for (TransactionTag transTag : transTags ) {
                 Integer transId = transTag.getTransactionId();
                 Transaction trans = this.mTransactionDbAdapter.getTransaction(transId);
                 
                 if ( trans != null ) {
                     System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
+                    currAmount += trans.getAmount();
+                    
+            /*
+                    // TODO - how to update observable list element and trigger event?
+                    // Get the TDW line this tag refers to 
+                    TransactionDetailWrapper tdw = transactionDetailWrapperList.stream()
+                        .filter(wrap -> wrap.getTag().equals(tagStr))
+                        .findFirst()
+                        .get();
+                    
+                    System.out.println("IMMA EDIT THIS: " + tdw.getTag() + ":" + tdw);
+                    
+                    tdw.setAmount(currAmount);
+                    System.out.println("amount="+currAmount +", tdw=" + tdw.getAmount());
+                    transactionDetailWrapperList.add(tdw);
+ */
                 }
                 else {
                     System.out.println("null trans??, transId=" + transId + ", transTagId="+transTag.getId());
                 }
-            }
+            } // for each TT mapping
+            
+            TransactionDetailWrapper tdw = new TransactionDetailWrapper(tagStr, currAmount);
+            System.out.println("tdw="+tdw.getTag() + ":" + tdw);
+            transactionDetailWrapperList.add(tdw);
         }
                 
     } // onFilterApply

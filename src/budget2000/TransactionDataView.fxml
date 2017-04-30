@@ -75,8 +75,8 @@
             <children>
                 <TableView fx:id="transactionDetailTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="598.0" prefWidth="225.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
-                        <TableColumn id="Tag" fx:id="transactionDetailTagCol" prefWidth="113.0" text="Tag" />
-                  <TableColumn fx:id="transactionDetailAmountCol" prefWidth="257.0" text="Amount" />
+                        <TableColumn id="Tag"       fx:id="transactionDetailTagCol" prefWidth="113.0" text="Tag" />
+                        <TableColumn id="Amount"    fx:id="transactionDetailAmountCol" prefWidth="257.0" text="Amount" />
                     </columns>
                 </TableView>
             </children>
