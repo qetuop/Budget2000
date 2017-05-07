@@ -9,8 +9,12 @@ import java.io.File;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -275,9 +279,61 @@ public class TransactionViewController implements Initializable {
         System.out.println("range = " + transactionRangeChoice.getSelectionModel().getSelectedIndex()
                 + ", " + transactionRangeChoice.getSelectionModel().getSelectedItem());
         
-        // FILTER on Tag
+
         transactionDetailWrapperList.clear();
         
+        ////////////////
+        // FILTER on Date
+        ////////////////
+        
+        
+        
+        // Simple date input 30, 60, 90, Custom
+        int rangeIndex = transactionRangeChoice.getSelectionModel().getSelectedIndex();
+
+        LocalDate startDate = LocalDate.MIN;
+        LocalDate endDate = LocalDateTime.now().toLocalDate();
+                
+        long startDateLong = 0;
+        long endDateLong   = endDate.toEpochDay();
+        
+        
+        switch (rangeIndex) {
+            case 0:
+                startDate = endDate.plus(Period.of(0, 0, -30));
+                break;
+            case 1:
+                startDate = endDate.plus(Period.of(0, 0, -60));
+                break;
+            case 2:
+                startDate = endDate.plus(Period.of(0, 0, -90));
+                break;
+            case 3:
+                // TODO: get advanced date inputs
+                // endDate =
+                // startDate =
+                //startDate = endDate.plus(Period.of(0, 0, -30));
+                //endDate = endDate.plus(Period.of(0, 0, -30));
+                break;
+            default:
+                break;
+        }
+        
+        startDateLong = startDate.toEpochDay();
+        endDateLong   = endDate.toEpochDay();
+        
+        
+        System.out.println("startDate: " + startDate + " : " + startDateLong);
+        System.out.println("endDate:   " + endDate + " : " + endDateLong);
+        
+        
+        // convert to ??
+        
+        
+        
+        ////////////////
+        // FILTER on Tag
+        ////////////////
         System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
         ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
         for ( String tagStr : checkedFilterTags ){
@@ -301,9 +357,9 @@ public class TransactionViewController implements Initializable {
             // get all transactions this TT mapping refers to - sum the amounts
             for (TransactionTag transTag : transTags ) {
                 Integer transId = transTag.getTransactionId();
-                Transaction trans = this.mTransactionDbAdapter.getTransaction(transId);
+                Transaction trans = mTransactionDbAdapter.getTransaction(transId);
                 
-                if ( trans != null ) {
+                if ( trans != null && ( trans.getDate() >= startDateLong && trans.getDate() <= endDateLong) ) {
                     System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
                     currAmount += trans.getAmount();
                     
@@ -366,7 +422,7 @@ public class TransactionViewController implements Initializable {
 
     } // init
 
-    private void tableSelection(Transaction selectedTransaction) {;
+    private void tableSelection(Transaction selectedTransaction) {
         logger.info("selected Transaction = " + selectedTransaction);
         budgetData.setSelectedTransaction(selectedTransaction);
     }

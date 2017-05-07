@@ -6,6 +6,7 @@
 package budget2000;
 
 //import au.com.bytecode.opencsv.CSVReader;
+import static budget2000.AbstractDbAdapter.logger;
 import com.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,6 +56,7 @@ public class Importer {
                 } else {
                     amount = line[4];
                 }
+                //System.out.println("LINE: " + line[0] + ":" + line[1] + ":" + line[2] + ":" +  line[3] + ":" + line[4] );
                 //Expense(Long date, Long id, String merchant, String location, Double amount)
                 //Expense expense = new Expense(date.getTime(), new Double(line[1]), line[2], line[3], new Double(line[4]));
                 DecimalFormat decimalFormat = new DecimalFormat();
@@ -75,11 +77,14 @@ public class Importer {
 
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);            
         } catch (IOException ex) {
             Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
             Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NumberFormatException ex) {            
+            Logger.getLogger(Importer.class.getName()).log(Level.SEVERE, null, ex);
+            //logger.log(Level.SEVERE, null, ex);
         }
 
         return transactionList;
