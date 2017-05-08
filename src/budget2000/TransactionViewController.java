@@ -31,6 +31,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -96,6 +97,11 @@ public class TransactionViewController implements Initializable {
     
     final ObservableList dateRangeList = FXCollections.observableArrayList(
             "30 Days", "60 Days", "90 Days", "Custom Range");    
+    
+    @FXML
+    private DatePicker pickerStart;
+    @FXML
+    private DatePicker pickerEnd;
     // ------- Filter Panel ----------
     
     
@@ -202,9 +208,24 @@ public class TransactionViewController implements Initializable {
         transactionRangeChoice.getSelectionModel().selectedIndexProperty().addListener( 
             (ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
                 System.out.println("range = " + dateRangeList.get(newValue.intValue()));
+                
+                if (newValue.intValue() == 3 ) {
+                    pickerStart.setDisable(false);
+                    pickerEnd.setDisable(false);
+                }
+                else {
+                    pickerStart.setDisable(true);
+                    pickerEnd.setDisable(true);
+                }
         });
         
-        
+        // default start end to Today / - 30days
+        pickerStart.setValue(LocalDateTime.now().toLocalDate().plus(Period.of(0, 0, -30)));
+        pickerEnd.setValue(LocalDateTime.now().toLocalDate());
+   
+        pickerStart.setDisable(true);
+        pickerEnd.setDisable(true);
+          
         
         // TODO: can't curretnly bind the control in FXML, this is a workaround - needs set() function?
         // https://bitbucket.org/controlsfx/controlsfx/issues/537/add-setitems-method-to-checkcombobox        
@@ -225,7 +246,9 @@ public class TransactionViewController implements Initializable {
                 // onFilterApply
             }            
         });           
-        filterTopFlow.getChildren().add(transactionTypeCombo);
+        filterTopFlow.getChildren().add(transactionTypeCombo);                
+        
+       
 
         // ------- Filter Panel ----------
         
@@ -309,11 +332,8 @@ public class TransactionViewController implements Initializable {
                 startDate = endDate.plus(Period.of(0, 0, -90));
                 break;
             case 3:
-                // TODO: get advanced date inputs
-                // endDate =
-                // startDate =
-                //startDate = endDate.plus(Period.of(0, 0, -30));
-                //endDate = endDate.plus(Period.of(0, 0, -30));
+                startDate = pickerStart.getValue();
+                endDate = pickerEnd.getValue();
                 break;
             default:
                 break;
