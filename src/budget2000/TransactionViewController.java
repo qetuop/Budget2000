@@ -21,12 +21,17 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -119,19 +124,22 @@ public class TransactionViewController implements Initializable {
     
     // ------- Details Panel ----------
     
+    private FilteredList<TransactionWrapper> filteredData;
+    private SortedList<TransactionWrapper> sortedData;
     
-
     public TransactionViewController() {
         
     }
     
-    /**
-     * Initializes the controller class.
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         logger.info("");
         
+        filteredData = new FilteredList<>(transactionWrapperList, p -> true);
+        sortedData = new SortedList<>(filteredData);
+        // 4. Bind the SortedList comparator to the TableView comparator. -- DOESN"T work
+        sortedData.comparatorProperty().bind(transactionTableView.comparatorProperty());
+        System.out.println("sortedData.size + " + sortedData.size());
         // ------- Details Pane ----------
        
         transactionDetailTagCol.setCellValueFactory(new PropertyValueFactory<>("tag"));
@@ -192,8 +200,9 @@ public class TransactionViewController implements Initializable {
 //                }
 //            };
 //        });
-        transactionTableView.setItems(transactionWrapperList);
-
+        //transactionTableView.setItems(transactionWrapperList);
+        transactionTableView.setItems(sortedData);
+      
         // propagate transactions selections
         transactionTableView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if ( newValue != null ) {
@@ -317,8 +326,8 @@ public class TransactionViewController implements Initializable {
         LocalDate startDate = LocalDate.MIN;
         LocalDate endDate = LocalDateTime.now().toLocalDate();
                 
-        long startDateLong = 0;
-        long endDateLong   = endDate.toEpochDay();
+        //long startDateLong = 0;
+        //long endDateLong   = endDate.toEpochDay();
         
         
         switch (rangeIndex) {
@@ -339,8 +348,8 @@ public class TransactionViewController implements Initializable {
                 break;
         }
         
-        startDateLong = startDate.toEpochDay();
-        endDateLong   = endDate.toEpochDay();
+        final long startDateLong = startDate.toEpochDay();
+        final long endDateLong   = endDate.toEpochDay();
         
         
         System.out.println("startDate: " + startDate + " : " + startDateLong);
@@ -406,6 +415,44 @@ public class TransactionViewController implements Initializable {
             TransactionDetailWrapper tdw = new TransactionDetailWrapper(tagStr, currAmount);
             System.out.println("tdw="+tdw.getTag() + ":" + tdw);
             transactionDetailWrapperList.add(tdw);
+        }
+                        
+        /// TMP HACK
+        // works, but lose the original list....
+        
+        // need to create a tmp list to set the actual one to, TODO: is there another way?
+        /*
+        ObservableList<TransactionWrapper>  tmpTransactionWrapperList;
+        ObservableList<TransactionWrapper>  curTransactionWrapperList = transactionTableView.getItems();
+
+        //final long fstartDateLong = startDateLong;
+        //final long fendDateLong   = endDateLong;
+        
+        ObservableList<TransactionWrapper> tmpTransactionWrapperList = curTransactionWrapperList.stream()
+                .filter(t -> t.getTransaction().getDate() >= startDateLong &&
+                             t.getTransaction().getDate() <= endDateLong)
+                .collect(collectingAndThen(toList(), l -> FXCollections.observableArrayList(l)));
+        
+        
+        // This will maintain the sorting order
+        transactionTableView.getItems().clear();
+        transactionTableView.getItems().addAll(tmpTransactionWrapperList);
+        transactionTableView.sort();
+        */
+        
+        // this works and doesn't destroy the ObsList, need to figure out
+        // how to set this up for the main table
+        filteredData.setPredicate(tw -> {
+            if ( tw.getTransaction().getDate() >= startDateLong &&
+                 tw.getTransaction().getDate() <= endDateLong) {
+                return true;
+            }
+            
+            return false;
+        });
+         System.out.println("****sorteddata.size " + sortedData.size());
+        for ( TransactionWrapper tw: sortedData ){
+            System.out.println(tw.getTransaction());
         }
                 
     } // onFilterApply
@@ -722,6 +769,8 @@ public class TransactionViewController implements Initializable {
     
     // WHAT is the main purpose of this function?  When should it be called?
     private void update() {
+        logger.info("");
+        
         Integer accountId = budgetData.getSelectedAccount();   
         
         // need to create a tmp list to set the actual one to, TODO: is there another way?
@@ -729,7 +778,7 @@ public class TransactionViewController implements Initializable {
         
         // get transactions
         ArrayList<Transaction> transactions = mTransactionDbAdapter.getAllForAccount(accountId);
-
+transactionWrapperList.clear();
         for (Transaction transaction : transactions) {
 
             // get TransactionTags
@@ -746,13 +795,19 @@ public class TransactionViewController implements Initializable {
             TransactionWrapper tw = new TransactionWrapper();
             tw.setTransaction(transaction);
             tw.setTags(FXCollections.observableArrayList(tags));
-            tmpTransactionWrapperList.add(tw);
+            //tmpTransactionWrapperList.add(tw);
+transactionWrapperList.add(tw) ;           
         }
-        
+            
         // This will maintain the sorting order
-        transactionTableView.getItems().clear();
-        transactionTableView.getItems().addAll(tmpTransactionWrapperList);
-        transactionTableView.sort();
+        //transactionTableView.getItems().clear();
+        //transactionTableView.getItems().addAll(tmpTransactionWrapperList);
+        //transactionTableView.sort();
+
+//        filteredData = new FilteredList<>(tmpTransactionWrapperList, p -> true);
+//        sortedData = new SortedList<>(filteredData);
+//        sortedData.comparatorProperty().bind(transactionTableView.comparatorProperty());
+        System.out.println("**sorteddata.size " + sortedData.size());
   
         //transactionWrapperList.setAll(tmpTransactionWrapperList);
         //transactionTableView.getSelectionModel().selectFirst();
