@@ -7,7 +7,9 @@ package budget2000;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -57,6 +59,15 @@ public class TransactionWrapper {
         }
         return tagList;  
     }
+    public Set<String> getTagSet() {
+        HashSet<String> tagSet = new HashSet();
+        
+        for (Tag tag : tags ){
+            tagSet.add(tag.getName());
+        }
+        return tagSet;  
+    }
+    
 
     public final void setTags(ObservableList value) {
         tags.set(value);

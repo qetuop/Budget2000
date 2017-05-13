@@ -14,12 +14,14 @@ import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -101,7 +103,7 @@ public class TransactionViewController implements Initializable {
     final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     
     final ObservableList dateRangeList = FXCollections.observableArrayList(
-            "30 Days", "60 Days", "90 Days", "Custom Range");    
+            "30 Days", "60 Days", "90 Days", "Custom Range", "All");    
     
     @FXML
     private DatePicker pickerStart;
@@ -137,7 +139,7 @@ public class TransactionViewController implements Initializable {
         
         filteredData = new FilteredList<>(transactionWrapperList, p -> true);
         sortedData = new SortedList<>(filteredData);
-        // 4. Bind the SortedList comparator to the TableView comparator. -- DOESN"T work
+        // Bind the SortedList comparator to the TableView comparator.
         sortedData.comparatorProperty().bind(transactionTableView.comparatorProperty());
         System.out.println("sortedData.size + " + sortedData.size());
         // ------- Details Pane ----------
@@ -263,7 +265,7 @@ public class TransactionViewController implements Initializable {
         
         
     } // initialize
-    
+/*    
     void updateDetails() {
         logger.info("");
         ObservableList<String> checkedTags = transactionTypeCombo.getCheckModel().getCheckedItems();
@@ -299,7 +301,7 @@ public class TransactionViewController implements Initializable {
         // udate amount col with value
         
     } // updateDetails
-    
+*/    
     @FXML
     protected void onFilterApply(ActionEvent event) {
         logger.info("");
@@ -325,11 +327,7 @@ public class TransactionViewController implements Initializable {
 
         LocalDate startDate = LocalDate.MIN;
         LocalDate endDate = LocalDateTime.now().toLocalDate();
-                
-        //long startDateLong = 0;
-        //long endDateLong   = endDate.toEpochDay();
-        
-        
+     
         switch (rangeIndex) {
             case 0:
                 startDate = endDate.plus(Period.of(0, 0, -30));
@@ -344,6 +342,9 @@ public class TransactionViewController implements Initializable {
                 startDate = pickerStart.getValue();
                 endDate = pickerEnd.getValue();
                 break;
+            case 4:
+                startDate = LocalDate.MIN;
+                endDate = LocalDateTime.now().toLocalDate();
             default:
                 break;
         }
@@ -365,6 +366,11 @@ public class TransactionViewController implements Initializable {
         ////////////////
         System.out.println(transactionTypeCombo.getCheckModel().getCheckedItems()); 
         ObservableList<String> checkedFilterTags = transactionTypeCombo.getCheckModel().getCheckedItems();
+        HashSet<String> tagSet = new HashSet();
+        
+        // if none checked
+        
+        // For each Checked Tag in the dropdown.  
         for ( String tagStr : checkedFilterTags ){
             
             ArrayList<TransactionTag> transTags;
@@ -372,6 +378,10 @@ public class TransactionViewController implements Initializable {
             // Get list of all TransTag mappings for this Tag
             if ( tagStr.compareTo("ALL") == 0 ) {
                 transTags = ttDbAdapter.getAll();     
+                
+                for ( Tag tag : tagDbAdapter.getAll() ) {
+                    tagSet.add(tag.getName());
+                }
             }
             else {
                 // get tag id
@@ -379,6 +389,8 @@ public class TransactionViewController implements Initializable {
             
                 // get all transactionTag  with this tag ID
                 transTags = ttDbAdapter.getAllForTag(tag.getId());
+                
+                tagSet.add(tagStr);
             }
                        
             Double currAmount = 0.0;
@@ -388,73 +400,31 @@ public class TransactionViewController implements Initializable {
                 Integer transId = transTag.getTransactionId();
                 Transaction trans = mTransactionDbAdapter.getTransaction(transId);
                 
-                if ( trans != null && ( trans.getDate() >= startDateLong && trans.getDate() <= endDateLong) ) {
-                    System.out.println("Trans = " + trans.getDisplayName() + ", value=" + trans.getAmount());
-                    currAmount += trans.getAmount();
-                    
-            /*
-                    // TODO - how to update observable list element and trigger event?
-                    // Get the TDW line this tag refers to 
-                    TransactionDetailWrapper tdw = transactionDetailWrapperList.stream()
-                        .filter(wrap -> wrap.getTag().equals(tagStr))
-                        .findFirst()
-                        .get();
-                    
-                    System.out.println("IMMA EDIT THIS: " + tdw.getTag() + ":" + tdw);
-                    
-                    tdw.setAmount(currAmount);
-                    System.out.println("amount="+currAmount +", tdw=" + tdw.getAmount());
-                    transactionDetailWrapperList.add(tdw);
- */
-                }
-                else {
-                    System.out.println("null trans??, transId=" + transId + ", transTagId="+transTag.getId());
-                }
+                if ( trans != null && ( trans.getDate() >= startDateLong && trans.getDate() <= endDateLong) ) {                    
+                    currAmount += trans.getAmount();                   
+                }                                                     
             } // for each TT mapping
             
             TransactionDetailWrapper tdw = new TransactionDetailWrapper(tagStr, currAmount);
-            System.out.println("tdw="+tdw.getTag() + ":" + tdw);
             transactionDetailWrapperList.add(tdw);
         }
-                        
-        /// TMP HACK
-        // works, but lose the original list....
         
-        // need to create a tmp list to set the actual one to, TODO: is there another way?
-        /*
-        ObservableList<TransactionWrapper>  tmpTransactionWrapperList;
-        ObservableList<TransactionWrapper>  curTransactionWrapperList = transactionTableView.getItems();
+        // Filter the MainTableView
+        // transactionTableView --> sortedData --> filteredData
+        
+        // Within date range
+        Predicate<TransactionWrapper> datePred = tw ->
+            (tw.getTransaction().getDate() >= startDateLong && 
+             tw.getTransaction().getDate() <= endDateLong);
+        
+        // Tags in common - disjoint returns true if no elements are the same       
+        Predicate<TransactionWrapper> tagPred = tw -> !(Collections.disjoint(tw.getTagSet(), tagSet));
+        
+        // Keyword - DisplayName
+        
+        // put it all together
+        filteredData.setPredicate(datePred.and(tagPred));
 
-        //final long fstartDateLong = startDateLong;
-        //final long fendDateLong   = endDateLong;
-        
-        ObservableList<TransactionWrapper> tmpTransactionWrapperList = curTransactionWrapperList.stream()
-                .filter(t -> t.getTransaction().getDate() >= startDateLong &&
-                             t.getTransaction().getDate() <= endDateLong)
-                .collect(collectingAndThen(toList(), l -> FXCollections.observableArrayList(l)));
-        
-        
-        // This will maintain the sorting order
-        transactionTableView.getItems().clear();
-        transactionTableView.getItems().addAll(tmpTransactionWrapperList);
-        transactionTableView.sort();
-        */
-        
-        // this works and doesn't destroy the ObsList, need to figure out
-        // how to set this up for the main table
-        filteredData.setPredicate(tw -> {
-            if ( tw.getTransaction().getDate() >= startDateLong &&
-                 tw.getTransaction().getDate() <= endDateLong) {
-                return true;
-            }
-            
-            return false;
-        });
-         System.out.println("****sorteddata.size " + sortedData.size());
-        for ( TransactionWrapper tw: sortedData ){
-            System.out.println(tw.getTransaction());
-        }
-                
     } // onFilterApply
     
 
@@ -723,6 +693,7 @@ public class TransactionViewController implements Initializable {
         logger.info("");
         ArrayList<Tag> tags = new ArrayList<>();
         
+        // create a List by adding to a Set (allows no repeats) and back to a List
         Set<String> hs = new HashSet<>();
         hs.addAll(stringTags);
         stringTags.clear();
