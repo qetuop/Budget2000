@@ -16,8 +16,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -66,6 +68,8 @@ public class TransactionViewController implements Initializable {
     private TransactionDbAdapter mTransactionDbAdapter;
     private TransactionTagDbAdapter ttDbAdapter;
     private TagDbAdapter tagDbAdapter;
+    
+    private final Map<String,String> nameMap = new HashMap<>();
 
     private ObservableList<TransactionWrapper> transactionWrapperList = FXCollections.observableArrayList();
 
@@ -496,14 +500,26 @@ public class TransactionViewController implements Initializable {
                 newTransList.stream().forEach((t) -> {
 
                     // see if this transaction already exists (account, name, date, amount)
-                    // for this account
+                    // for this account -> NOT DisplayName
                     t.setAccountId(budgetData.getSelectedAccount());
-                    //System.out.println(t + " exists = " + mTransactionDbAdapter.exists(t) );
+                    
                     if ( mTransactionDbAdapter.exists(t) == false ) {
                     
+                        // automatically set the display name based on similar items
+                        if ( nameMap.containsKey(t.getName()) == true ) {
+                            t.setDisplayName(nameMap.get(t.getName()));
+                        }
+                        else {
+                            nameMap.put(t.getName(), t.getDisplayName());
+                        }
+                        
                         t.setAccountId(budgetData.getSelectedAccount());
                         int transactionId = mTransactionDbAdapter.createTransaction(t);
                         t.setId(transactionId);
+                        
+                        if ( nameMap.containsKey(t.getName()) == false ) {
+                            nameMap.put(t.getName(), t.getDisplayName());
+                        }
 
                         TransactionWrapper tw = new TransactionWrapper();
                         tw.setTransaction(t);
@@ -657,6 +673,14 @@ public class TransactionViewController implements Initializable {
 
             Transaction newTransaction = resultPair.getKey();
             ArrayList<String> stringTags = resultPair.getValue();
+            
+            // automatically set the display name based on similar items
+            if ( nameMap.containsKey(newTransaction.getName()) == true ) {
+                newTransaction.setDisplayName(nameMap.get(newTransaction.getName()));
+            }
+            else {
+                nameMap.put(newTransaction.getName(), newTransaction.getDisplayName());
+            }
 
             newTransaction.setAccountId(budgetData.getSelectedAccount());
             TransactionWrapper tw = createTransactionWrapper(newTransaction, stringTags);
